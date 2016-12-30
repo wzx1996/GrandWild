@@ -88,12 +88,13 @@ namespace org.flamerat.GrandWild
         public bool IsRunning { get; private set; } = false;
 
         private Vulkan.Instance _Instance;
+        private System.Windows.Forms.Form _DisplayForm;
+        private Vulkan.SurfaceKhr _Surface;
         private Vulkan.PhysicalDevice _PhysicalDevice;
         private Vulkan.Device _Device;
         private uint _DeviceGraphicsQueueFamilyIndex = 0;
         private uint _DevicePresentQueueFamilyIndex = 0;
-        private System.Windows.Forms.Form _DisplayForm;
-        private Vulkan.SurfaceKhr _Surface;
+        private Vulkan.CommandPool _CommandPool;
         private Vulkan.SwapchainKhr _Swapchain;
         private Vulkan.Extent2D _SwapchainExtent;
         private Vulkan.PresentModeKhr _SwapchainPresentMode;
@@ -164,8 +165,27 @@ namespace org.flamerat.GrandWild
             if (!foundGraphicsBit) throw new Exception("No available graphics queue for first GPU");
             if (!foundPresentSupport) throw new Exception("No available present queue for first GPU");
 
-            Vulkan.DeviceQueueCreateInfo queueInfo
+            Vulkan.DeviceQueueCreateInfo queueInfo = new Vulkan.DeviceQueueCreateInfo();
+            queueInfo.QueueFamilyIndex = _DeviceGraphicsQueueFamilyIndex;
+            queueInfo.QueueCount = 1;
+            queueInfo.QueuePriorities = new float[1] { 0F };
 
+            Vulkan.DeviceCreateInfo deviceInfo = new Vulkan.DeviceCreateInfo();
+            deviceInfo.QueueCreateInfos = new Vulkan.DeviceQueueCreateInfo[1] { queueInfo };
+
+            _Device = _PhysicalDevice.CreateDevice(deviceInfo);
+
+            Vulkan.CommandPoolCreateInfo commandPoolInfo = new Vulkan.CommandPoolCreateInfo();
+            commandPoolInfo.QueueFamilyIndex = _DeviceGraphicsQueueFamilyIndex;
+
+            _CommandPool = _Device.CreateCommandPool(commandPoolInfo);
+
+            Vulkan.CommandBufferAllocateInfo commandBufferAllocInfo = new Vulkan.CommandBufferAllocateInfo();
+            commandBufferAllocInfo.CommandPool = _CommandPool;
+            commandBufferAllocInfo.Level = Vulkan.CommandBufferLevel.Primary;
+            commandBufferAllocInfo.CommandBufferCount = 1;
+
+            _Device.AllocateCommandBuffers(commandBufferAllocInfo);
         }
     }
 }

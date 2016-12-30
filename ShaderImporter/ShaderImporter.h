@@ -25,7 +25,7 @@
 using namespace Newtonsoft::Json;
 
 
-namespace org::flamerat::ShaderImporter {
+namespace org::flamerat::GrandWild::ShaderImporter {
 	enum class ShaderType {
 		Undefined,
 		Vertex,
@@ -34,7 +34,7 @@ namespace org::flamerat::ShaderImporter {
 	public ref class Shader {
 	public:
 		System::String^ Name;
-		array<unsigned int>^ Code;
+		array<System::Byte>^ Code;
 		ShaderType Type=ShaderType::Undefined;
 	};
 
@@ -56,11 +56,13 @@ namespace org::flamerat::ShaderImporter {
 		void Append(Shader^ shader);
 		void ImportFromFiles(System::String^ ListFileName);
 
+		static array<System::Byte>^ Glsl2Spv(ShaderType type, System::String^ GlslCode);
+
 	private:
 
 		System::Collections::Generic::List<Shader^>^ _Shaders;
 
-		array<unsigned int>^ Glsl2Spv(ShaderType type, System::String^ GlslCode);
+		
 	};
 
 	//Copied from tutorial utility in Vulkan SDK

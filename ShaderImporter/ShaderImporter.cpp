@@ -41,15 +41,18 @@
 
 #include "ShaderImporter.h"
 
-void org::flamerat::ShaderImporter::Shaders::Append(Shader ^ shader)
+void org::flamerat::GrandWild::ShaderImporter::Shaders::Append(Shader ^ shader)
 {
 	_Shaders->Add(shader);
 }
 
-void org::flamerat::ShaderImporter::Shaders::ImportFromFiles(System::String ^ ListFileName)
+void org::flamerat::GrandWild::ShaderImporter::Shaders::ImportFromFiles(System::String ^ ListFileName)
 {
+	System::String^ originalDir = System::IO::Directory::GetCurrentDirectory();
 	JsonTextReader^ reader = gcnew JsonTextReader(gcnew System::IO::StreamReader(ListFileName));
 	JsonSerializer^ serializer = gcnew JsonSerializer();
+
+	System::IO::Directory::SetCurrentDirectory(gcnew System::IO::FileInfo(ListFileName)->DirectoryName);
 	while (true) {
 		if (!reader->Read()) break;
 		ShaderFile^ currShaderFile=serializer->Deserialize<ShaderFile^>(reader);
@@ -71,36 +74,16 @@ void org::flamerat::ShaderImporter::Shaders::ImportFromFiles(System::String ^ Li
 		else if (currShaderFile->Type == "SPV_Vertex") {
 			currShader->Type = ShaderType::Vertex;
 			System::IO::FileStream^ shaderReader = System::IO::File::OpenRead(currShaderFile->FileName);
-			array<unsigned int>^ shaderCode = gcnew array<unsigned int>((shaderReader->Length) / sizeof(unsigned int));
-			unsigned int currWord = 0;
-			unsigned int pos = 0;
-			array<unsigned char>^ buffer = gcnew array<unsigned char>(sizeof(unsigned int));
-			while (shaderReader->Position <= shaderReader->Length) {
-				currWord = 0;
-				buffer->Clear;
-				shaderReader->Read(buffer, 0, sizeof(int));
-				for each(unsigned char bufferByte in buffer) currWord = (currWord << 8) + bufferByte;
-				shaderCode[pos] = currWord;
-				pos++;
-			}
+			array<System::Byte>^ shaderCode = gcnew array<System::Byte>(shaderReader->Length);
+			shaderReader->Read(shaderCode, 0, shaderReader->Length);
 			shaderReader->Close();
 			currShader->Code = shaderCode;
 		}
 		else if (currShaderFile->Type == "SPV_Fragment"){
 			currShader->Type = ShaderType::Fragment;
 			System::IO::FileStream^ shaderReader = System::IO::File::OpenRead(currShaderFile->FileName);
-			array<unsigned int>^ shaderCode = gcnew array<unsigned int>((shaderReader->Length) / sizeof(unsigned int));
-			unsigned int currWord = 0;
-			unsigned int pos = 0;
-			array<unsigned char>^ buffer = gcnew array<unsigned char>(sizeof(unsigned int));
-			while (shaderReader->Position <= shaderReader->Length) {
-				currWord = 0;
-				buffer->Clear;
-				shaderReader->Read(buffer, 0, sizeof(int));
-				for each(unsigned char bufferByte in buffer) currWord = (currWord << 8) + bufferByte;
-				shaderCode[pos] = currWord;
-				pos++;
-			}
+			array<System::Byte>^ shaderCode = gcnew array<System::Byte>(shaderReader->Length);
+			shaderReader->Read(shaderCode, 0, shaderReader->Length);
 			shaderReader->Close();
 			currShader->Code = shaderCode;
 		}
@@ -110,10 +93,11 @@ void org::flamerat::ShaderImporter::Shaders::ImportFromFiles(System::String ^ Li
 		}
 		_Shaders->Add(currShader);
 	}
+	System::IO::Directory::SetCurrentDirectory(originalDir);
 	delete serializer;
 }
 
-array<unsigned int>^ org::flamerat::ShaderImporter::Shaders::Glsl2Spv(ShaderType type, System::String ^ GlslCode) {
+array<System::Byte>^ org::flamerat::GrandWild::ShaderImporter::Shaders::Glsl2Spv(ShaderType type, System::String ^ GlslCode) {
 	using namespace System::Runtime::InteropServices;
 	EShLanguage shaderType;
 	switch (type) {
@@ -149,7 +133,8 @@ array<unsigned int>^ org::flamerat::ShaderImporter::Shaders::Glsl2Spv(ShaderType
 
 	//compile and convert result to managed array
 	glslang::GlslangToSpv(*sourceProgram->getIntermediate(shaderType), compiledCode);
-	array<unsigned int>^ result = gcnew array<unsigned int>(compiledCode.size());
+	array<System::Byte>^ result = gcnew array<System::Byte>(compiledCode.size()*sizeof(unsigned int));
+	Marshal::Copy(System::IntPtr(compiledCode.data()), result, 0, result->Length);
 	for (unsigned int i = 0;i < compiledCode.size();i++) result[i] = compiledCode[i];
 
 	delete[] shaderStrings[0];
@@ -159,7 +144,7 @@ array<unsigned int>^ org::flamerat::ShaderImporter::Shaders::Glsl2Spv(ShaderType
 }
 
 //Copied from tutorial utility in Vulkan SDK
-void org::flamerat::ShaderImporter::init_resources(TBuiltInResource & Resources) {
+void org::flamerat::GrandWild::ShaderImporter::init_resources(TBuiltInResource & Resources) {
 	Resources.maxLights = 32;
 	Resources.maxClipPlanes = 6;
 	Resources.maxTextureUnits = 32;
