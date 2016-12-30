@@ -1,0 +1,12 @@
+[
+  {
+    "Name": "Basic Vertex",
+    "FileName": "basic.vert",
+    "Type": "GLSL_Vertex"
+  },
+  {
+    "Name": "Basic Fragment",
+    "FileName": "basic.frag",
+    "Type": "GLSL_Fragment"
+  }
+]
