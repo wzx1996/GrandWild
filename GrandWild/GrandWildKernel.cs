@@ -187,5 +187,34 @@ namespace org.flamerat.GrandWild
 
             _Device.AllocateCommandBuffers(commandBufferAllocInfo);
         }
+
+        private void _InitSwapchain() {
+
+        }
+
+        private void _InitDepthBuffer() {
+
+        }
+
+        //Uniform buffer ∈ Descriptor ∈ Descritor set ∈ Pipeline layout
+        private void _InitPipelineLayout() {
+
+        }
+
+        private void _InitRenderPass() {
+
+        }
+
+        private void _InitShaders() {
+
+        }
+
+        private void _InitPipeline() {
+
+        }
+
+        private void _DrawFrame() {
+
+        }
     }
 }
