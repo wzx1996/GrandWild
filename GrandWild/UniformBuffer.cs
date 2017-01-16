@@ -57,6 +57,7 @@ namespace org.flamerat.GrandWild {
             }
 
             _UniformBufferMemory = _Device.AllocateMemory(memAllocInfo);
+            _Device.BindBufferMemory(_Buffer, _UniformBufferMemory,0);
             _MemorySize = memoryRequirements.Size;
 
             for(i = 0; i <= _Size; i++) {

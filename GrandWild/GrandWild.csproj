@@ -58,13 +58,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Descriptor\UniformBuffer.cs" />
+    <Compile Include="UniformBuffer.cs" />
     <Compile Include="GrandWildKernel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Descriptor\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
