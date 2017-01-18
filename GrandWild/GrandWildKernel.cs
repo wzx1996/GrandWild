@@ -27,6 +27,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Vulkan.Windows;
+using GlmNet;
 
 namespace org.flamerat.GrandWild
 {
@@ -99,16 +100,45 @@ namespace org.flamerat.GrandWild
         private Vulkan.SwapchainKhr _Swapchain;
         private Vulkan.Extent2D _SwapchainExtent;
         private Vulkan.PresentModeKhr _SwapchainPresentMode;
+        private Vulkan.SampleCountFlags _SampleCount = Vulkan.SampleCountFlags.Count1;
         private Vulkan.Image[] _SwapchainImages;
         private Vulkan.ImageView[] _SwapchainImagseView;
+        private Vulkan.Format _SwapchainImageFormat;
         private Vulkan.Image _DepthBufferImage;
         private Vulkan.ImageView _DepthBufferImageView;
+        private Vulkan.Format _DepthImageFormat;
+        private Vulkan.DescriptorSetLayout _RenderingInfoSetLayout; //TEST_STUB
+        private Vulkan.DescriptorPool _RenderingInfoPool; //TEST_STUB
+        private Vulkan.DescriptorSet[] _RenderingInfoSets;
+        private Vulkan.PipelineLayout _RenderingPipelineLayout;
+        private Vulkan.RenderPass _RenderPass;
+
+
+        private Vulkan.Semaphore _ImageAcquireSemaphore;
+
+        //TEST_STUB
+        public struct BasicRenderingInfo {
+            public mat4 Model;
+            public mat4 View;
+            public mat4 Projection;
+            public mat4 Clip;
+            public vec3 GlobalLightDirection;
+        }
+        //TEST_STUB
+        private UniformBuffer<BasicRenderingInfo> _RenderingInfoBuffer;
+
 
         public void Launch() {
             _InitInstance();
             _InitSurface();
             _InitDevice();
             _InitSwapchain();
+            _InitDepthBuffer();
+            _InitPipelineLayout();
+            _InitDescriptorSets();
+            _InitRenderPass();
+
+
         }
 
         private void _InitInstance() {
@@ -216,13 +246,12 @@ namespace org.flamerat.GrandWild
             swapchainInfo.MinImageCount = _SwapchainImageCount;
 
             var surfaceFormat = _PhysicalDevice.GetSurfaceFormatsKHR(_Surface);
-            Vulkan.Format currentImageFormat;
             if (surfaceFormat[0].Format != Vulkan.Format.Undefined) {
-                currentImageFormat = surfaceFormat[0].Format;
+                _SwapchainImageFormat = surfaceFormat[0].Format;
             }else {
-                currentImageFormat = Vulkan.Format.B8G8R8A8Snorm;
+                _SwapchainImageFormat = Vulkan.Format.B8G8R8A8Snorm;
             }
-            swapchainInfo.ImageFormat = currentImageFormat;
+            swapchainInfo.ImageFormat = _SwapchainImageFormat;
             swapchainInfo.ImageExtent = _SwapchainExtent;
 
             if (surfaceCapabilities.SupportedTransforms.HasFlag(Vulkan.SurfaceTransformFlagsKhr.Identity))
@@ -262,7 +291,7 @@ namespace org.flamerat.GrandWild
             for (uint i = 0; i <= _SwapchainImageCount - 1; i++) {
                 viewInfos[i].Image = _SwapchainImages[i];
                 viewInfos[i].ViewType = Vulkan.ImageViewType.View2D;
-                viewInfos[i].Format = currentImageFormat;
+                viewInfos[i].Format = _SwapchainImageFormat;
                 viewInfos[i].Components = new Vulkan.ComponentMapping {
                     R = Vulkan.ComponentSwizzle.R,
                     G = Vulkan.ComponentSwizzle.G,
@@ -293,7 +322,7 @@ namespace org.flamerat.GrandWild
                 },
                 MipLevels = 1,
                 ArrayLayers = 1,
-                Samples = Vulkan.SampleCountFlags.Count1,
+                Samples = _SampleCount,
                 InitialLayout = Vulkan.ImageLayout.Undefined,
                 Usage = Vulkan.ImageUsageFlags.DepthStencilAttachment,
                 SharingMode = Vulkan.SharingMode.Exclusive
@@ -308,6 +337,8 @@ namespace org.flamerat.GrandWild
 
             var depthImageMemory = _Device.AllocateMemory(depthImageMemAllocInfo);
             _Device.BindImageMemory(_DepthBufferImage, depthImageMemory, 0);
+
+            _DepthImageFormat = Vulkan.Format.D16Unorm;
 
             Vulkan.ImageViewCreateInfo viewInfo = new Vulkan.ImageViewCreateInfo {
                 Image = _DepthBufferImage,
@@ -332,12 +363,129 @@ namespace org.flamerat.GrandWild
         }
 
         //Uniform buffer ∈ Descriptor ∈ Descritor set ∈ Pipeline layout
+        //TEST_STUB
         private void _InitPipelineLayout() {
+            _RenderingInfoBuffer = new UniformBuffer<BasicRenderingInfo>(_PhysicalDevice, _Device, 1);
+            Vulkan.DescriptorSetLayoutBinding[] renderingSetLayoutBindings = new Vulkan.DescriptorSetLayoutBinding[1];
+
+            renderingSetLayoutBindings[0].Binding = 0;
+            renderingSetLayoutBindings[0].DescriptorType = Vulkan.DescriptorType.UniformBuffer;
+            renderingSetLayoutBindings[0].DescriptorCount = 1;
+            renderingSetLayoutBindings[0].StageFlags = Vulkan.ShaderStageFlags.Vertex;
+
+            Vulkan.DescriptorSetLayoutCreateInfo renderSetLayoutInfo = new Vulkan.DescriptorSetLayoutCreateInfo {
+                BindingCount = 1,
+                Bindings = renderingSetLayoutBindings
+            };
+
+            _RenderingInfoSetLayout = _Device.CreateDescriptorSetLayout(renderSetLayoutInfo);
+
+            Vulkan.PipelineLayoutCreateInfo renderingPipelineLayoutInfo = new Vulkan.PipelineLayoutCreateInfo {
+                PushConstantRangeCount = 0,
+                SetLayoutCount = 1,
+                SetLayouts = new Vulkan.DescriptorSetLayout[1] { _RenderingInfoSetLayout } 
+            };
+            _RenderingPipelineLayout = _Device.CreatePipelineLayout(renderingPipelineLayoutInfo);
 
         }
 
-        private void _InitRenderPass() {
+        private void _InitDescriptorSets() {
+            Vulkan.DescriptorPoolCreateInfo renderingPoolInfo = new Vulkan.DescriptorPoolCreateInfo {
+                MaxSets = 1,
+                PoolSizeCount = 1,
+                PoolSizes = new Vulkan.DescriptorPoolSize[1] {
+                    new Vulkan.DescriptorPoolSize {
+                        Type=Vulkan.DescriptorType.UniformBuffer,
+                        DescriptorCount=1
+                    }
+                }
+            };
+            _RenderingInfoPool = _Device.CreateDescriptorPool(renderingPoolInfo);
 
+            Vulkan.DescriptorSetAllocateInfo setAllocInfo = new Vulkan.DescriptorSetAllocateInfo {
+                DescriptorPool = _RenderingInfoPool,
+                DescriptorSetCount = 1,
+                SetLayouts = new Vulkan.DescriptorSetLayout[1] { _RenderingInfoSetLayout }
+            };
+            _RenderingInfoSets = _Device.AllocateDescriptorSets(setAllocInfo);
+
+            //TEST_STUB
+            BasicRenderingInfo testInfo = new BasicRenderingInfo();
+            testInfo.Model = new mat4(1.0F);
+            testInfo.View = glm.lookAt(
+                new vec3(3, 10, 0),
+                new vec3(0, 0, 0),
+                new vec3(0, -1, 0)
+                );
+            testInfo.Projection = glm.perspective(glm.radians(60), 1, 0.1F, 100);
+            testInfo.Clip = new mat4(
+                new vec4(1, 0, 0, 0),
+                new vec4(0, -1, 0, 0),
+                new vec4(0, 0, 0.5f, 0),
+                new vec4(0, 0, 0.5f, 1)
+                );
+            testInfo.GlobalLightDirection = new vec3(1, -0.5f, 0.5f);
+            _RenderingInfoBuffer.Commit(0, testInfo);
+
+            Vulkan.WriteDescriptorSet[] writes = new Vulkan.WriteDescriptorSet[1] {
+                new Vulkan.WriteDescriptorSet {
+                    DstSet=_RenderingInfoSets[0],
+                    DescriptorType=Vulkan.DescriptorType.UniformBuffer,
+                    BufferInfo=new Vulkan.DescriptorBufferInfo[1] {_RenderingInfoBuffer.BufferInfo[0]},
+                    DstArrayElement=0,
+                    DstBinding=0
+                }
+            };
+            _Device.UpdateDescriptorSets(writes, null);
+        }
+
+        private void _InitRenderPass() {
+            Vulkan.AttachmentDescription[] attachments = new Vulkan.AttachmentDescription[2] {
+                new Vulkan.AttachmentDescription {
+                    Format=_SwapchainImageFormat,
+                    Samples=_SampleCount,
+                    LoadOp=Vulkan.AttachmentLoadOp.Clear,
+                    StoreOp=Vulkan.AttachmentStoreOp.Store,
+                    StencilLoadOp=Vulkan.AttachmentLoadOp.DontCare,
+                    StencilStoreOp=Vulkan.AttachmentStoreOp.DontCare,
+                    InitialLayout=Vulkan.ImageLayout.ColorAttachmentOptimal,
+                    FinalLayout=Vulkan.ImageLayout.PresentSrcKhr
+                },
+                new Vulkan.AttachmentDescription {
+                    Format=_DepthImageFormat,
+                    Samples=_SampleCount,
+                    LoadOp=Vulkan.AttachmentLoadOp.Clear,
+                    StoreOp=Vulkan.AttachmentStoreOp.DontCare,
+                    StencilLoadOp=Vulkan.AttachmentLoadOp.DontCare,
+                    StencilStoreOp=Vulkan.AttachmentStoreOp.DontCare,
+                    InitialLayout=Vulkan.ImageLayout.DepthStencilAttachmentOptimal,
+                    FinalLayout=Vulkan.ImageLayout.DepthStencilAttachmentOptimal
+                }
+            };
+
+            Vulkan.AttachmentReference colorReference = new Vulkan.AttachmentReference {
+                Attachment = 0,
+                Layout = Vulkan.ImageLayout.ColorAttachmentOptimal
+            };
+            Vulkan.AttachmentReference depthReference = new Vulkan.AttachmentReference {
+                Attachment = 1,
+                Layout = Vulkan.ImageLayout.DepthStencilAttachmentOptimal
+            };
+
+            Vulkan.SubpassDescription subpass = new Vulkan.SubpassDescription {
+                PipelineBindPoint = Vulkan.PipelineBindPoint.Graphics,
+                ColorAttachmentCount = 1,
+                ColorAttachments = new Vulkan.AttachmentReference[1] { colorReference },
+                DepthStencilAttachment = depthReference
+            };
+
+            Vulkan.RenderPassCreateInfo renderPassInfo = new Vulkan.RenderPassCreateInfo {
+                AttachmentCount = 2,
+                Attachments = attachments,
+                SubpassCount = 1,
+                Subpasses = new Vulkan.SubpassDescription[1] { subpass }
+            };
+            _RenderPass = _Device.CreateRenderPass(renderPassInfo);
         }
 
         private void _InitShaders() {
@@ -348,7 +496,22 @@ namespace org.flamerat.GrandWild
 
         }
 
+        private void _InitSemaphore() {
+            Vulkan.SemaphoreCreateInfo info = new Vulkan.SemaphoreCreateInfo();
+            _ImageAcquireSemaphore = _Device.CreateSemaphore(info);
+        }
+
         private void _DrawFrame() {
+            var currentImage = _Device.AcquireNextImageKHR(_Swapchain, ulong.MaxValue, _ImageAcquireSemaphore);
+            _SwapchainImages[currentImage].TransitLayout(Vulkan.ImageAspectFlags.Color, Vulkan.ImageLayout.Undefined, Vulkan.ImageLayout.ColorAttachmentOptimal);
+
+        }
+
+
+    }
+
+    static class VulkanImageLayoutTransitExtension {
+        public static void TransitLayout(this Vulkan.Image image, Vulkan.ImageAspectFlags aspectMask, Vulkan.ImageLayout from, Vulkan.ImageLayout to) {
 
         }
     }
