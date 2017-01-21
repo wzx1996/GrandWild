@@ -37,32 +37,38 @@ namespace org.flamerat.GrandWild {
 
             BufferInfo = new Vulkan.DescriptorBufferInfo[_Size];
 
-            Vulkan.BufferCreateInfo bufferCreateInfo = new Vulkan.BufferCreateInfo();
-            bufferCreateInfo.Usage = Vulkan.BufferUsageFlags.UniformBuffer;
-            bufferCreateInfo.Size = _StructureSize * _Size;
-            bufferCreateInfo.SharingMode = Vulkan.SharingMode.Exclusive;
-            _Buffer =_Device.CreateBuffer(bufferCreateInfo);
+            _Buffer = new Vulkan.Buffer[size];
+            for (uint i = 0; i <= size - 1; i++) {
+                Vulkan.BufferCreateInfo bufferCreateInfo = new Vulkan.BufferCreateInfo();
+                bufferCreateInfo.Usage = Vulkan.BufferUsageFlags.UniformBuffer;
+                bufferCreateInfo.Size = _StructureSize;
+                bufferCreateInfo.SharingMode = Vulkan.SharingMode.Exclusive;
+                _Buffer[i] = _Device.CreateBuffer(bufferCreateInfo);
+            }
 
-            Vulkan.MemoryRequirements memoryRequirements = _Device.GetBufferMemoryRequirements(_Buffer);
+            Vulkan.MemoryRequirements memoryRequirements = _Device.GetBufferMemoryRequirements(_Buffer[0]);
             Vulkan.MemoryAllocateInfo memAllocInfo = new Vulkan.MemoryAllocateInfo();
-            memAllocInfo.AllocationSize = memoryRequirements.Size;
-            Vulkan.PhysicalDeviceMemoryProperties memoryProperty= _PhysicalDevice.GetMemoryProperties();
-            uint i = 0;
-            for (i = 0; i < memoryProperty.MemoryTypeCount; i++) {
+            memAllocInfo.AllocationSize = memoryRequirements.Size*size;
+            Vulkan.PhysicalDeviceMemoryProperties memoryProperty = _PhysicalDevice.GetMemoryProperties();
+
+            uint selectedMemory = 0;
+            for (uint i = 0; i < memoryProperty.MemoryTypeCount; i++) {
                 if (((memoryRequirements.MemoryTypeBits>>(int)i) & 1) == 1) {
                     if((memoryProperty.MemoryTypes[i].PropertyFlags&Vulkan.MemoryPropertyFlags.HostVisible)== Vulkan.MemoryPropertyFlags.HostVisible) {
+                        selectedMemory = i;
                         break;
                     }
                 }
             }
 
+            memAllocInfo.MemoryTypeIndex = selectedMemory;
             _UniformBufferMemory = _Device.AllocateMemory(memAllocInfo);
-            _Device.BindBufferMemory(_Buffer, _UniformBufferMemory,0);
-            _MemorySize = memoryRequirements.Size;
 
-            for(i = 0; i <= _Size; i++) {
-                BufferInfo[i].Buffer = _Buffer;
-                BufferInfo[i].Offset = i*_StructureSize;
+            _MemorySize = memoryRequirements.Size;
+            for(uint i = 0; i <= _Size; i++) {
+                _Device.BindBufferMemory(_Buffer[i], _UniformBufferMemory, 0);
+                BufferInfo[i].Buffer = _Buffer[i];
+                BufferInfo[i].Offset = 0;
                 BufferInfo[i].Range = _StructureSize;
             }
         }
@@ -71,22 +77,25 @@ namespace org.flamerat.GrandWild {
         /// Commit Structure into uniform buffer
         /// </summary>
         public void Commit(uint index,T data) {
-            IntPtr pDeviceMemory=_Device.MapMemory(_UniformBufferMemory, index*_StructureSize, _StructureSize);
+            IntPtr pDeviceMemory=_Device.MapMemory(_UniformBufferMemory, index*_MemorySize, _MemorySize);
             System.Runtime.InteropServices.Marshal.StructureToPtr(data,pDeviceMemory,false);
             Vulkan.MappedMemoryRange memRange=new Vulkan.MappedMemoryRange();
             memRange.Memory = _UniformBufferMemory;
-            memRange.Offset = index * _StructureSize;
-            memRange.Size = _StructureSize;
+            memRange.Offset = index * _MemorySize;
+            memRange.Size = _MemorySize;
             _Device.FlushMappedMemoryRange(memRange);
             _Device.UnmapMemory(_UniformBufferMemory);
         }
 
+        ~UniformBuffer() {
+            _Device.FreeMemory(_UniformBufferMemory);
+        }
         private readonly ulong _StructureSize = (ulong)System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
         private uint _Size;
         private Vulkan.PhysicalDevice _PhysicalDevice;
         private Vulkan.Device _Device;
         private Vulkan.DeviceSize _MemorySize;
         private Vulkan.DeviceMemory _UniformBufferMemory;
-        private Vulkan.Buffer _Buffer;
+        private Vulkan.Buffer[] _Buffer;
     }
 }
