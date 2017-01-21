@@ -102,7 +102,7 @@ namespace org.flamerat.GrandWild
         private Vulkan.PresentModeKhr _SwapchainPresentMode;
         private Vulkan.SampleCountFlags _SampleCount = Vulkan.SampleCountFlags.Count1;
         private Vulkan.Image[] _SwapchainImages;
-        private Vulkan.ImageView[] _SwapchainImagseView;
+        private Vulkan.ImageView[] _SwapchainImageViews;
         private Vulkan.Format _SwapchainImageFormat;
         private Vulkan.Image _DepthBufferImage;
         private Vulkan.ImageView _DepthBufferImageView;
@@ -112,7 +112,8 @@ namespace org.flamerat.GrandWild
         private Vulkan.DescriptorSet[] _RenderingInfoSets;
         private Vulkan.PipelineLayout _RenderingPipelineLayout;
         private Vulkan.RenderPass _RenderPass;
-
+        private Vulkan.Framebuffer[] _Framebuffers;
+        private Vulkan.Buffer _VertexBuffer;
 
         private Vulkan.Semaphore _ImageAcquireSemaphore;
 
@@ -122,10 +123,37 @@ namespace org.flamerat.GrandWild
             public mat4 View;
             public mat4 Projection;
             public mat4 Clip;
-            public vec3 GlobalLightDirection;
+            public vec4 GlobalLightDirection;
         }
         //TEST_STUB
         private UniformBuffer<BasicRenderingInfo> _RenderingInfoBuffer;
+
+        public struct Vertex {
+            vec4 Position;
+            vec4 Color;
+            vec4 Normal;
+        }
+        public const uint Vec4Size = 16;
+        public readonly Vulkan.VertexInputAttributeDescription[] VertexDescription = new Vulkan.VertexInputAttributeDescription[3] {
+            new Vulkan.VertexInputAttributeDescription {
+                Format=Vulkan.Format.R32G32B32A32Sfloat,
+                Binding=0,
+                Location=0,
+                Offset=0
+            },
+            new Vulkan.VertexInputAttributeDescription {
+                Format=Vulkan.Format.R32G32B32A32Sfloat,
+                Binding=0,
+                Location=1,
+                Offset=1*Vec4Size
+            },
+            new Vulkan.VertexInputAttributeDescription {
+                Format=Vulkan.Format.R32G32B32A32Sfloat,
+                Binding=0,
+                Location=2,
+                Offset=2*Vec4Size
+            }
+        };
 
 
         public void Launch() {
@@ -286,7 +314,7 @@ namespace org.flamerat.GrandWild
 
             _SwapchainImages = _Device.GetSwapchainImagesKHR(_Swapchain);
             _SwapchainImageCount = (uint)_SwapchainImages.Length;
-            _SwapchainImagseView = new Vulkan.ImageView[2];
+            _SwapchainImageViews = new Vulkan.ImageView[2];
             Vulkan.ImageViewCreateInfo[] viewInfos = new Vulkan.ImageViewCreateInfo[_SwapchainImageCount];
             for (uint i = 0; i <= _SwapchainImageCount - 1; i++) {
                 viewInfos[i].Image = _SwapchainImages[i];
@@ -307,7 +335,7 @@ namespace org.flamerat.GrandWild
                     LayerCount = 1
                 };
 
-                _SwapchainImagseView[i] = _Device.CreateImageView(viewInfos[i]);
+                _SwapchainImageViews[i] = _Device.CreateImageView(viewInfos[i]);
             }
         }
 
@@ -424,7 +452,7 @@ namespace org.flamerat.GrandWild
                 new vec4(0, 0, 0.5f, 0),
                 new vec4(0, 0, 0.5f, 1)
                 );
-            testInfo.GlobalLightDirection = new vec3(1, -0.5f, 0.5f);
+            testInfo.GlobalLightDirection = new vec4(1, -0.5f, 0.5f,1);
             _RenderingInfoBuffer.Commit(0, testInfo);
 
             Vulkan.WriteDescriptorSet[] writes = new Vulkan.WriteDescriptorSet[1] {
@@ -486,6 +514,25 @@ namespace org.flamerat.GrandWild
                 Subpasses = new Vulkan.SubpassDescription[1] { subpass }
             };
             _RenderPass = _Device.CreateRenderPass(renderPassInfo);
+
+
+            _Framebuffers = new Vulkan.Framebuffer[_SwapchainImageCount];
+
+            for(int i=0;i<=_SwapchainImageCount-1;i++) {
+                Vulkan.FramebufferCreateInfo frameBufferInfo = new Vulkan.FramebufferCreateInfo {
+                    RenderPass = _RenderPass,
+                    AttachmentCount = 2,
+                    Attachments = new Vulkan.ImageView[2] {
+                        _SwapchainImageViews[i],
+                        _DepthBufferImageView
+                    },
+                    Width = _WindowWidth,
+                    Height = _WindowHeight,
+                    Layers = 1
+                };
+                _Framebuffers[i] = _Device.CreateFramebuffer(frameBufferInfo);
+            }
+
         }
 
         private void _InitShaders() {
