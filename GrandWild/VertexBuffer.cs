@@ -26,12 +26,9 @@ using System.Threading.Tasks;
 using Vulkan;
 
 namespace org.flamerat.GrandWild {
-    interface IVertexBuffer {
-        Vulkan.Buffer VBO { get; }
-        void SendToGpu(Device device, DeviceMemory memory, DeviceSize offset);
-    }
-    class VertexBuffer<T>:IVertexBuffer where T:struct {
-        public Vulkan.Buffer VBO {
+
+    class VertexBuffer<T>:IGpuBuffer where T:struct {
+        public Vulkan.Buffer Buffer {
             get { return _VBO; }
         }
         public T[] Data { get { return _Data; } }
@@ -44,7 +41,7 @@ namespace org.flamerat.GrandWild {
             _VBO=device.CreateBuffer(bufferInfo);
         }
         public void SendToGpu(Device device, DeviceMemory memory, DeviceSize offset) {
-            var memReqs = device.GetBufferMemoryRequirements(VBO);
+            var memReqs = device.GetBufferMemoryRequirements(_VBO);
             var bufferSize = memReqs.Size;
             var pDeviceMemory = device.MapMemory(memory, offset, bufferSize);
             System.Runtime.InteropServices.Marshal.StructureToPtr(_Data, pDeviceMemory, false);
@@ -61,45 +58,13 @@ namespace org.flamerat.GrandWild {
         private T[] _Data;
         private Vulkan.Buffer _VBO;
     }
-    class VertexBufferMemory {
-        public VertexBufferMemory(PhysicalDevice physicalDevice,Device device,IVertexBuffer[] buffers) {
-            _Device = device;
-            DeviceSize[] bufferSize = new DeviceSize[buffers.Length];
-            DeviceSize[] bufferOffset = new DeviceSize[buffers.Length];
-            DeviceSize memorySize=0;
-            bufferOffset[0] = 0;
-            for(uint i = 0; i <= buffers.Length - 1; i++) {
-                bufferSize[i] = device.GetBufferMemoryRequirements(buffers[i].VBO).Size;
-                if (i != 0) bufferOffset[i] = bufferSize[i] + bufferOffset[i - 1];
-                memorySize += bufferSize[i];
-            }
-
-            Vulkan.PhysicalDeviceMemoryProperties memoryProperty = physicalDevice.GetMemoryProperties();
-            var memoryTypes = device.GetBufferMemoryRequirements(buffers[0]).MemoryTypeBits;
-
-            uint selectedMemory = 0;
-            for (uint i = 0; i < memoryProperty.MemoryTypeCount; i++) {
-                if (((memoryTypes >> (int)i) & 1) == 1) {
-                    if ((memoryProperty.MemoryTypes[i].PropertyFlags & Vulkan.MemoryPropertyFlags.HostVisible) == Vulkan.MemoryPropertyFlags.HostVisible) {
-                        selectedMemory = i;
-                        break;
-                    }
-                }
-            }
-            MemoryAllocateInfo memAllocInfo = new MemoryAllocateInfo {
-                AllocationSize = memorySize,
-                MemoryTypeIndex = selectedMemory
-
-            };
-            _DeviceMemory = device.AllocateMemory(memAllocInfo);
-            for(uint i=0; i <= buffers.Length - 1; i++) {
-                buffers[i].SendToGpu(device, _DeviceMemory, bufferOffset[i]);
-            }
-        }
-        ~VertexBufferMemory() {
+    abstract class GpuStoredObjectMemory {
+        ~GpuStoredObjectMemory() {
             _Device.FreeMemory(_DeviceMemory);
         }
-        private DeviceMemory _DeviceMemory;
-        private Device _Device;
+        protected DeviceMemory _DeviceMemory;
+        protected Device _Device;
     }
+
+
 }

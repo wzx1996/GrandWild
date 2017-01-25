@@ -73,6 +73,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GpuStoredObjectMemory.cs" />
     <Compile Include="VertexBuffer.cs" />
     <Compile Include="ShaderStage.cs" />
     <Compile Include="UniformBuffer.cs" />
