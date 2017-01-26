@@ -2,9 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 layout(std140,binding=0) uniform RenderingInfoStructure {
-	mat4 Model;
-	mat4 View;
-	mat4 Projection;
+	mat4 ModelViewProjection;
 	mat4 Clip;
 	vec4 GlobalLightDirection;
 } RenderingInfo;
@@ -19,7 +17,8 @@ out gl_PerVertex {
 };
 
 void main(){
-	OutColor=InColor+InColor*0.2*(-1.0)*(dot(Normal,RenderingInfo.GlobalLightDirection)/(abs(Normal)*abs(RenderingInfo.GlobalLightDirection)));
-	mat4 mvpc=RenderingInfo.Clip * RenderingInfo.Projection * RenderingInfo.View * RenderingInfo.Model;
+	mat4 mvpc=RenderingInfo.Clip * RenderingInfo.ModelViewProjection;
+	vec4 TransformedNormal=mvpc*Normal;
+	OutColor=InColor+InColor*0.2*(-1.0)*(dot(TransformedNormal,RenderingInfo.GlobalLightDirection)/(abs(TransformedNormal)*abs(RenderingInfo.GlobalLightDirection)));
 	gl_Position=mvpc * Pos;
 }
