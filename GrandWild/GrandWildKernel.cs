@@ -20,6 +20,25 @@
 ///
 /// You should have received a copy of the GNU General Public License
 /// along with this program.If not, see<http://www.gnu.org/licenses/>.
+/// 
+///
+///
+///Vulkan Samples
+///
+///Copyright (C) 2015-2016 Valve Corporation
+///Copyright (C) 2015-2016 LunarG, Inc.
+///
+///Licensed under the Apache License, Version 2.0 (the "License");
+///you may not use this file except in compliance with the License.
+///You may obtain a copy of the License at
+///
+///    http://www.apache.org/licenses/LICENSE-2.0
+///
+///Unless required by applicable law or agreed to in writing, software
+///distributed under the License is distributed on an "AS IS" BASIS,
+///WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+///See the License for the specific language governing permissions and
+///limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -96,6 +115,7 @@ namespace org.flamerat.GrandWild
         private uint _DeviceGraphicsQueueFamilyIndex = 0;
         private uint _DevicePresentQueueFamilyIndex = 0;
         private Vulkan.CommandPool _CommandPool;
+        private Vulkan.CommandBuffer[] _CommandBuffers;
         private uint _SwapchainImageCount = 1;
         private Vulkan.SwapchainKhr _Swapchain;
         private Vulkan.Extent2D _SwapchainExtent;
@@ -113,15 +133,13 @@ namespace org.flamerat.GrandWild
         private Vulkan.PipelineLayout _RenderingPipelineLayout;
         private Vulkan.RenderPass _RenderPass;
         private Vulkan.Framebuffer[] _Framebuffers;
-        private Vulkan.Buffer _VertexBuffer;
+        private Vulkan.Pipeline[] _Pipelines;
 
         private Vulkan.Semaphore _ImageAcquireSemaphore;
 
         //TEST_STUB
         public struct BasicRenderingInfo {
-            public mat4 Model;
-            public mat4 View;
-            public mat4 Projection;
+            public mat4 ModelViewProjection;
             public mat4 Clip;
             public vec4 GlobalLightDirection;
         }
@@ -132,9 +150,16 @@ namespace org.flamerat.GrandWild
             vec4 Position;
             vec4 Color;
             vec4 Normal;
+            vec2 Texture;
         }
         public const uint Vec4Size = 16;
-        public readonly Vulkan.VertexInputAttributeDescription[] VertexDescription = new Vulkan.VertexInputAttributeDescription[3] {
+        public const uint Vec2Size = 8;
+        public readonly Vulkan.VertexInputBindingDescription VertexBindingDescription = new Vulkan.VertexInputBindingDescription {
+            InputRate = Vulkan.VertexInputRate.Vertex,
+            Binding = 0,
+            Stride = 3 * Vec4Size + Vec2Size
+        };
+        public readonly Vulkan.VertexInputAttributeDescription[] VertexAttributeDescription = new Vulkan.VertexInputAttributeDescription[4] {
             new Vulkan.VertexInputAttributeDescription {
                 Format=Vulkan.Format.R32G32B32A32Sfloat,
                 Binding=0,
@@ -152,6 +177,12 @@ namespace org.flamerat.GrandWild
                 Binding=0,
                 Location=2,
                 Offset=2*Vec4Size
+            },
+            new Vulkan.VertexInputAttributeDescription {
+                Format=Vulkan.Format.R32G32Sfloat,
+                Binding=0,
+                Location=3,
+                Offset=3*Vec4Size
             }
         };
 
@@ -165,7 +196,10 @@ namespace org.flamerat.GrandWild
             _InitPipelineLayout();
             _InitDescriptorSets();
             _InitRenderPass();
+            _InitPipeline();
+            _InitSemaphore();
 
+            new System.Threading.Thread(_MainLoop);
 
         }
 
@@ -252,7 +286,7 @@ namespace org.flamerat.GrandWild
             commandBufferAllocInfo.Level = Vulkan.CommandBufferLevel.Primary;
             commandBufferAllocInfo.CommandBufferCount = 1;
 
-            _Device.AllocateCommandBuffers(commandBufferAllocInfo);
+            _CommandBuffers=_Device.AllocateCommandBuffers(commandBufferAllocInfo);
         }
 
         private void _InitSwapchain() {
@@ -439,13 +473,16 @@ namespace org.flamerat.GrandWild
 
             //TEST_STUB
             BasicRenderingInfo testInfo = new BasicRenderingInfo();
-            testInfo.Model = new mat4(1.0F);
-            testInfo.View = glm.lookAt(
-                new vec3(3, 10, 0),
-                new vec3(0, 0, 0),
-                new vec3(0, -1, 0)
-                );
-            testInfo.Projection = glm.perspective(glm.radians(60), 1, 0.1F, 100);
+            {
+                var model = new mat4(1.0F);
+                var view = glm.lookAt(
+                    new vec3(3, 10, 0),
+                    new vec3(0, 0, 0),
+                    new vec3(0, -1, 0)
+                    );
+                var projection = glm.perspective(glm.radians(60), 1, 0.1F, 100);
+                testInfo.ModelViewProjection = projection * view * model;
+            }
             testInfo.Clip = new mat4(
                 new vec4(1, 0, 0, 0),
                 new vec4(0, -1, 0, 0),
@@ -535,12 +572,119 @@ namespace org.flamerat.GrandWild
 
         }
 
-        private void _InitShaders() {
-
-        }
-
         private void _InitPipeline() {
+            Vulkan.DynamicState[] dynamicStateEnables = new Vulkan.DynamicState[0];
+            Vulkan.PipelineDynamicStateCreateInfo dynamicStateInfo = new Vulkan.PipelineDynamicStateCreateInfo {
+                DynamicStates = dynamicStateEnables,
+                DynamicStateCount = 0
+            };
 
+            Vulkan.PipelineVertexInputStateCreateInfo vertexStateInfo = new Vulkan.PipelineVertexInputStateCreateInfo {
+                VertexBindingDescriptionCount = 1,
+                VertexBindingDescriptions = new Vulkan.VertexInputBindingDescription[]{ VertexBindingDescription },
+                VertexAttributeDescriptionCount = 3,
+                VertexAttributeDescriptions = VertexAttributeDescription
+            };
+
+            Vulkan.PipelineInputAssemblyStateCreateInfo inputAssemblyStateInfo = new Vulkan.PipelineInputAssemblyStateCreateInfo {
+                PrimitiveRestartEnable = false,
+                Topology = Vulkan.PrimitiveTopology.TriangleList
+            };
+
+            Vulkan.PipelineRasterizationStateCreateInfo rasterizationStateInfo = new Vulkan.PipelineRasterizationStateCreateInfo {
+                PolygonMode = Vulkan.PolygonMode.Fill,
+                CullMode = Vulkan.CullModeFlags.Back,
+                FrontFace = Vulkan.FrontFace.CounterClockwise,
+                DepthClampEnable = true,
+                DepthBiasEnable = false,
+                LineWidth = 1.0F
+            };
+
+            Vulkan.PipelineColorBlendStateCreateInfo colorBlendStateInfo = new Vulkan.PipelineColorBlendStateCreateInfo {
+                AttachmentCount = 1,
+                Attachments = new Vulkan.PipelineColorBlendAttachmentState[1] {
+                    new Vulkan.PipelineColorBlendAttachmentState {
+                        ColorWriteMask=(Vulkan.ColorComponentFlags)0xF /* all */,
+                        BlendEnable=false,
+                        AlphaBlendOp=Vulkan.BlendOp.Add,
+                        ColorBlendOp=Vulkan.BlendOp.Add,
+                        SrcAlphaBlendFactor=Vulkan.BlendFactor.Zero,
+                        DstAlphaBlendFactor=Vulkan.BlendFactor.Zero,
+                        SrcColorBlendFactor=Vulkan.BlendFactor.Zero,
+                        DstColorBlendFactor=Vulkan.BlendFactor.Zero
+                    }
+                },
+                LogicOpEnable = false,
+                LogicOp = Vulkan.LogicOp.NoOp,
+                BlendConstants = new float[] { 1.0F, 1.0F, 1.0F, 1.0F }
+            };
+
+            Vulkan.PipelineViewportStateCreateInfo viewportStateInfo = new Vulkan.PipelineViewportStateCreateInfo {
+                ScissorCount = 1,
+                ViewportCount = 1
+            };
+            dynamicStateEnables = new Vulkan.DynamicState[2] {
+                Vulkan.DynamicState.Viewport,
+                Vulkan.DynamicState.Scissor
+            };
+
+            Vulkan.PipelineDepthStencilStateCreateInfo depthStencilStateInfo = new Vulkan.PipelineDepthStencilStateCreateInfo {
+                DepthTestEnable = true,
+                DepthWriteEnable = true,
+                DepthCompareOp = Vulkan.CompareOp.LessOrEqual,
+                DepthBoundsTestEnable = false,
+                MinDepthBounds = 0,
+                MaxDepthBounds = 0,
+                StencilTestEnable = false,
+                Back = new Vulkan.StencilOpState {
+                    FailOp = Vulkan.StencilOp.Keep,
+                    PassOp = Vulkan.StencilOp.Keep,
+                    CompareOp = Vulkan.CompareOp.Always,
+                    CompareMask = 0,
+                    Reference = 0,
+                    DepthFailOp = Vulkan.StencilOp.Keep,
+                    WriteMask = 0
+                },
+                Front = new Vulkan.StencilOpState {
+                    FailOp = Vulkan.StencilOp.Keep,
+                    PassOp = Vulkan.StencilOp.Keep,
+                    CompareOp = Vulkan.CompareOp.Always,
+                    CompareMask = 0,
+                    Reference = 0,
+                    DepthFailOp = Vulkan.StencilOp.Keep,
+                    WriteMask = 0
+                }
+            };
+
+            Vulkan.PipelineMultisampleStateCreateInfo multisampleStateInfo = new Vulkan.PipelineMultisampleStateCreateInfo {
+                RasterizationSamples = Vulkan.SampleCountFlags.Count1,
+                SampleShadingEnable = false,
+                AlphaToCoverageEnable = false,
+                AlphaToOneEnable = false,
+                MinSampleShading = 0.0F
+            };
+
+            Vulkan.GraphicsPipelineCreateInfo renderingPipelineInfo = new Vulkan.GraphicsPipelineCreateInfo {
+                Layout = _RenderingPipelineLayout,
+                BasePipelineHandle = null,
+                BasePipelineIndex = 0,
+                VertexInputState = vertexStateInfo,
+                InputAssemblyState = inputAssemblyStateInfo,
+                RasterizationState = rasterizationStateInfo,
+                ColorBlendState = colorBlendStateInfo,
+                TessellationState = null,
+                MultisampleState = multisampleStateInfo,
+                DynamicState = dynamicStateInfo,
+                ViewportState = viewportStateInfo,
+                StageCount = 2,
+                Stages = new Vulkan.PipelineShaderStageCreateInfo[2] {
+                    new ShaderStage(_Device, @"Shaders\Basic.vert.spv"),
+                    new ShaderStage(_Device, @"Shaders\Basic.frag.spv")
+                },
+                RenderPass = _RenderPass,
+                Subpass = 0
+            };
+            _Pipelines = _Device.CreateGraphicsPipelines(null, new Vulkan.GraphicsPipelineCreateInfo[1] { renderingPipelineInfo });
         }
 
         private void _InitSemaphore() {
@@ -548,18 +692,131 @@ namespace org.flamerat.GrandWild
             _ImageAcquireSemaphore = _Device.CreateSemaphore(info);
         }
 
+        private void _MainLoop() {
+            _DisplayForm.Show();
+            IsRunning = true;
+            while (IsRunning) {
+                _DrawFrame();
+            }
+        }
+
         private void _DrawFrame() {
             var currentImage = _Device.AcquireNextImageKHR(_Swapchain, ulong.MaxValue, _ImageAcquireSemaphore);
-            _SwapchainImages[currentImage].TransitLayout(Vulkan.ImageAspectFlags.Color, Vulkan.ImageLayout.Undefined, Vulkan.ImageLayout.ColorAttachmentOptimal);
+            _CommandBuffers[0].TransitImageLayout(
+                image: _SwapchainImages[currentImage],
+                aspectMask: Vulkan.ImageAspectFlags.Color,
+                from: Vulkan.ImageLayout.Undefined,
+                to: Vulkan.ImageLayout.ColorAttachmentOptimal
+            );
+            Vulkan.RenderPassBeginInfo renderPassBeginInfo = new Vulkan.RenderPassBeginInfo {
+                RenderPass = _RenderPass,
+                Framebuffer = _Framebuffers[currentImage],
+                RenderArea = new Vulkan.Rect2D {
+                    Offset = new Vulkan.Offset2D {
+                        X = 0,
+                        Y = 0
+                    },
+                    Extent = new Vulkan.Extent2D {
+                        Width = WindowWidth,
+                        Height = WindowHeight,
+                    }
+                },
+                ClearValueCount = 2,
+                ClearValues = new Vulkan.ClearValue[] {
+                    new Vulkan.ClearValue {
+                        Color=new Vulkan.ClearColorValue {
+                            Float32=new float[4] {0.0F, 0.0F, 0.0F, 0.0F}
+                        }
+                    },
+                    new Vulkan.ClearValue {
+                        DepthStencil=new Vulkan.ClearDepthStencilValue {
+                            Depth=1.0F,
+                            Stencil=0
+                        }
+                    }
+                }
+            };
+
+            _CommandBuffers[0].CmdBeginRenderPass(renderPassBeginInfo, Vulkan.SubpassContents.Inline);
+
+            _CommandBuffers[0].CmdBindPipeline(Vulkan.PipelineBindPoint.Graphics, _Pipelines[0]);
+
+            //TODO finish writing this
 
         }
 
 
     }
 
-    static class VulkanImageLayoutTransitExtension {
-        public static void TransitLayout(this Vulkan.Image image, Vulkan.ImageAspectFlags aspectMask, Vulkan.ImageLayout from, Vulkan.ImageLayout to) {
 
+    static class VulkanCommandBufferTransitExtension {
+        /// <summary>
+        /// Transiti image layout
+        /// </summary>
+        /// Code ported from Vulkan Samples
+        public static void TransitImageLayout(this Vulkan.CommandBuffer commandBuffer,Vulkan.Image image, Vulkan.ImageAspectFlags aspectMask, Vulkan.ImageLayout from, Vulkan.ImageLayout to) {
+            const uint VK_QUEUE_FAMILY_IGNORED = 0;
+            Vulkan.ImageMemoryBarrier imageMemoryBarrier = new Vulkan.ImageMemoryBarrier {
+                OldLayout = from,
+                NewLayout = to,
+                SrcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                DstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                Image = image,
+                SubresourceRange = new Vulkan.ImageSubresourceRange {
+                    AspectMask = aspectMask,
+                    BaseMipLevel = 0,
+                    LevelCount = 1,
+                    BaseArrayLayer = 0,
+                    LayerCount = 1
+                }
+            };
+            {
+                Vulkan.AccessFlags src = 0;
+                Vulkan.AccessFlags dst = 0;
+                switch (from) {
+                    case Vulkan.ImageLayout.ColorAttachmentOptimal:
+                        src = Vulkan.AccessFlags.ColorAttachmentWrite;
+                        break;
+                    case Vulkan.ImageLayout.TransferDstOptimal:
+                        src = Vulkan.AccessFlags.TransferWrite;
+                        break;
+                    case Vulkan.ImageLayout.Preinitialized:
+                        src = Vulkan.AccessFlags.HostWrite;
+                        break;
+                    default:
+                        break;
+                }
+                switch (to) {
+                    case Vulkan.ImageLayout.TransferDstOptimal:
+                        dst = Vulkan.AccessFlags.TransferWrite;
+                        break;
+                    case Vulkan.ImageLayout.TransferSrcOptimal:
+                        dst = Vulkan.AccessFlags.TransferRead;
+                        break;
+                    case Vulkan.ImageLayout.ShaderReadOnlyOptimal:
+                        dst = Vulkan.AccessFlags.ShaderRead;
+                        break;
+                    case Vulkan.ImageLayout.ColorAttachmentOptimal:
+                        dst = Vulkan.AccessFlags.ColorAttachmentWrite;
+                        break;
+                    case Vulkan.ImageLayout.DepthStencilAttachmentOptimal:
+                        dst = Vulkan.AccessFlags.DepthStencilAttachmentWrite;
+                        break;
+                    default:
+                        break;
+                }
+                imageMemoryBarrier.SrcAccessMask = src;
+                imageMemoryBarrier.DstAccessMask = dst;
+            }
+
+            commandBuffer.CmdPipelineBarrier(
+                srcStageMask: Vulkan.PipelineStageFlags.TopOfPipe,
+                dstStageMask: Vulkan.PipelineStageFlags.TopOfPipe,
+                dependencyFlag: 0,
+                pMemoryBarrier: null,
+                pBufferMemoryBarrier: null,
+                pImageMemoryBarrier: imageMemoryBarrier
+            );
         }
     }
 }

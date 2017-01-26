@@ -35,7 +35,7 @@ namespace org.flamerat.GrandWild {
         public VertexBuffer(Device device,T[] data) {
             BufferCreateInfo bufferInfo = new BufferCreateInfo {
                 Usage = BufferUsageFlags.VertexBuffer,
-                Size = System.Runtime.InteropServices.Marshal.SizeOf(T[]),
+                Size = System.Runtime.InteropServices.Marshal.SizeOf<T>()*data.Length,
                 SharingMode = SharingMode.Exclusive
             };
             _VBO=device.CreateBuffer(bufferInfo);
