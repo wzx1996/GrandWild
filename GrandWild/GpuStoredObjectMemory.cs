@@ -15,6 +15,13 @@ namespace org.flamerat.GrandWild {
     interface IGpuImage : IGpuStoredObject {
         Vulkan.Image Image { get; }
     }
+    abstract class GpuStoredObjectMemory {
+        ~GpuStoredObjectMemory() {
+            _Device.FreeMemory(_DeviceMemory);
+        }
+        protected DeviceMemory _DeviceMemory;
+        protected Device _Device;
+    }
     class GpuBufferMemory : GpuStoredObjectMemory {
         public GpuBufferMemory(PhysicalDevice physicalDevice, Device device, IGpuBuffer[] buffers) {
             _Device = device;

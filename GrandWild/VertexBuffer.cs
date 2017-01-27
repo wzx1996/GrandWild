@@ -58,13 +58,7 @@ namespace org.flamerat.GrandWild {
         private T[] _Data;
         private Vulkan.Buffer _VBO;
     }
-    abstract class GpuStoredObjectMemory {
-        ~GpuStoredObjectMemory() {
-            _Device.FreeMemory(_DeviceMemory);
-        }
-        protected DeviceMemory _DeviceMemory;
-        protected Device _Device;
-    }
+
 
 
 }
