@@ -275,7 +275,6 @@ namespace org.flamerat.GrandWild
 
             _Device = _PhysicalDevice.CreateDevice(deviceInfo);
 
-
             Vulkan.CommandPoolCreateInfo commandPoolInfo = new Vulkan.CommandPoolCreateInfo();
             commandPoolInfo.QueueFamilyIndex = _DeviceGraphicsQueueFamilyIndex;
 
@@ -702,12 +701,15 @@ namespace org.flamerat.GrandWild
 
         private void _DrawFrame() {
             var currentImage = _Device.AcquireNextImageKHR(_Swapchain, ulong.MaxValue, _ImageAcquireSemaphore);
-            _CommandBuffers[0].TransitImageLayout(
+            _CommandBuffers[0].Begin(new Vulkan.CommandBufferBeginInfo { Flags = Vulkan.CommandBufferUsageFlags.OneTimeSubmit });
+            _CommandBuffers[0].CmdTransitImageLayoutGw(
                 image: _SwapchainImages[currentImage],
                 aspectMask: Vulkan.ImageAspectFlags.Color,
                 from: Vulkan.ImageLayout.Undefined,
                 to: Vulkan.ImageLayout.ColorAttachmentOptimal
             );
+            _CommandBuffers[0].End();
+
             Vulkan.RenderPassBeginInfo renderPassBeginInfo = new Vulkan.RenderPassBeginInfo {
                 RenderPass = _RenderPass,
                 Framebuffer = _Framebuffers[currentImage],
@@ -750,11 +752,23 @@ namespace org.flamerat.GrandWild
 
 
     static class VulkanCommandBufferTransitExtension {
+        public static readonly Vulkan.CommandBufferBeginInfo OneTimeCommandBeginInfo = new Vulkan.CommandBufferBeginInfo {
+            Flags = Vulkan.CommandBufferUsageFlags.OneTimeSubmit
+        };
+        public static void BeginOneTimeCommandGw(this Vulkan.CommandBuffer commandBuffer) {
+            commandBuffer.Begin(OneTimeCommandBeginInfo);
+        }
+        public static void ExecuteSingleTimeCommandGw(this Vulkan.CommandBuffer commandBuffer,Vulkan.Queue graphicsQueue, Action<Vulkan.CommandBuffer> commands) {
+            commandBuffer.BeginOneTimeCommandGw();
+            commands(commandBuffer);
+            commandBuffer.End();
+            graphicsQueue.Submit(new Vulkan.SubmitInfo { CommandBufferCount = 1, CommandBuffers = new Vulkan.CommandBuffer[1] { commandBuffer } });
+        }
         /// <summary>
         /// Transiti image layout
         /// </summary>
         /// Code ported from Vulkan Samples
-        public static void TransitImageLayout(this Vulkan.CommandBuffer commandBuffer,Vulkan.Image image, Vulkan.ImageAspectFlags aspectMask, Vulkan.ImageLayout from, Vulkan.ImageLayout to) {
+        public static void CmdTransitImageLayoutGw(this Vulkan.CommandBuffer commandBuffer,Vulkan.Image image, Vulkan.ImageAspectFlags aspectMask, Vulkan.ImageLayout from, Vulkan.ImageLayout to) {
             const uint VK_QUEUE_FAMILY_IGNORED = 0;
             Vulkan.ImageMemoryBarrier imageMemoryBarrier = new Vulkan.ImageMemoryBarrier {
                 OldLayout = from,
