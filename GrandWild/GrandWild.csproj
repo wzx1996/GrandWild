@@ -35,6 +35,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -43,6 +44,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GlmNet, Version=0.5.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -74,6 +76,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GpuStoredObjectMemory.cs" />
+    <Compile Include="IndexBuffer.cs" />
+    <Compile Include="Rendering\IPart.cs" />
+    <Compile Include="Rendering\IRenderable.cs" />
+    <Compile Include="Rendering\Model.cs" />
+    <Compile Include="Rendering\ObjModel.cs" />
+    <Compile Include="Rendering\Structure.cs" />
+    <Compile Include="TextureImage.cs" />
     <Compile Include="VertexBuffer.cs" />
     <Compile Include="ShaderStage.cs" />
     <Compile Include="UniformBuffer.cs" />
@@ -81,7 +90,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="BaseTypes.cd" />
     <None Include="packages.config" />
     <None Include="Shaders\Basic.frag" />
     <None Include="Shaders\Basic.frag.spv" />
