@@ -7,6 +7,7 @@ using Vulkan;
 
 namespace org.flamerat.GrandWild {
     interface IGpuStoredObject {
+        void DisposeRamData();
         void SendToGpu(Device device, DeviceMemory memory, DeviceSize offset);
     }
     interface IGpuBuffer : IGpuStoredObject {
@@ -14,6 +15,7 @@ namespace org.flamerat.GrandWild {
     }
     interface IGpuImage : IGpuStoredObject {
         Vulkan.Image Image { get; }
+        Vulkan.ImageView ImageView { get; }
     }
     abstract class GpuStoredObjectMemory {
         ~GpuStoredObjectMemory() {
