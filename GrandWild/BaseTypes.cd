@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="org.flamerat.GrandWild.Rendering.VulkanCommandBufferDrawIRenderableExtension" Collapsed="true">
+    <Position X="11.25" Y="1.25" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Rendering\IRenderable.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="org.flamerat.GrandWild.Rendering.VulkanCommandBufferDrawIPartExtension" Collapsed="true">
+    <Position X="11.25" Y="0.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Rendering\IPart.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="org.flamerat.GrandWild.Rendering.Structure" Collapsed="true">
+    <Position X="7.75" Y="5.75" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="org.flamerat.GrandWild.Rendering.Structure.SubPart">
+        <TypeIdentifier>
+          <NewMemberFileName>Rendering\Structure.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>Rendering\Structure.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="org.flamerat.GrandWild.Rendering.Model" Collapsed="true">
+    <Position X="9.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAIAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>Rendering\Model.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="org.flamerat.GrandWild.UniformBuffer&lt;T&gt;" Collapsed="true">
+    <Position X="12" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEBgAAAAwAAAAAAAAAIAAAAAAAAAACAAAAACACA=</HashCode>
+      <FileName>UniformBuffer.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="org.flamerat.GrandWild.VertexBuffer&lt;T&gt;" Collapsed="true">
+    <Position X="1.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAABAAAAAAAAAAAAAAABAAAAIEAAAAQAA=</HashCode>
+      <FileName>VertexBuffer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="org.flamerat.GrandWild.IndexBuffer" Collapsed="true">
+    <Position X="1.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAABAAACIEAAAAQAA=</HashCode>
+      <FileName>IndexBuffer.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="org.flamerat.GrandWild.IGpuStoredObject" Collapsed="true">
+    <Position X="6" Y="0.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <FileName>GpuStoredObjectMemory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="org.flamerat.GrandWild.IGpuBuffer" Collapsed="true">
+    <Position X="3" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA=</HashCode>
+      <FileName>GpuStoredObjectMemory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="org.flamerat.GrandWild.IGpuImage" Collapsed="true">
+    <Position X="3" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>GpuStoredObjectMemory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="org.flamerat.GrandWild.Rendering.IRenderable" Collapsed="true">
+    <Position X="7.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Rendering\IRenderable.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="org.flamerat.GrandWild.Rendering.IPart" Collapsed="true">
+    <Position X="7.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Rendering\IPart.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>
