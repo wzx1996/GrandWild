@@ -65,8 +65,6 @@ namespace org.flamerat.GrandWild {
                         byte* pDeviceMemory = (byte*)device.MapMemory(memory, offset, imageSize);
                         int realWidth = _Data.GetLength(1);
                         int paddedWidth = (int)(UInt64)imageSubresourceLayout.RowPitch;
-                        byte* currSrc = pData;
-                        byte* currDst = pDeviceMemory;
                         for (int i = 0; i <= _Data.GetLength(0) - 1; i++) {
                             for(int j = 0; j <= realWidth-1; j++) {
                                 //With this method, each time there's a word being copied, rathre than a byte, thus in theory this should be faster
