@@ -20,7 +20,7 @@ namespace org.flamerat.GrandWild {
             }
         }
 
-        public TextureImage(Device device, byte[,,] data, bool optimalTiling) {
+        public TextureImage(Device device, byte[,,] data, bool optimalTiling=false) {
             _Data = data;
             _OptimalTiling = optimalTiling;
             ImageCreateInfo imageInfo = new ImageCreateInfo {
@@ -54,7 +54,7 @@ namespace org.flamerat.GrandWild {
         }
 
         public void SendToGpu(Device device, DeviceMemory memory, DeviceSize offset) {
-            if (_OptimalTiling) {
+            if (!_OptimalTiling) {
                 var memReqs = device.GetImageMemoryRequirements(_Image);
                 var imageSize = memReqs.Size;
                 var imageSubresourceLayout = device.GetImageSubresourceLayout(_Image, new ImageSubresource { AspectMask = ImageAspectFlags.Color, MipLevel = 0, ArrayLayer = 0 });
