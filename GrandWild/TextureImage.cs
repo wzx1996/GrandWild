@@ -68,7 +68,10 @@ namespace org.flamerat.GrandWild {
                         byte* currSrc = pData;
                         byte* currDst = pDeviceMemory;
                         for (int i = 0; i <= _Data.GetLength(0) - 1; i++) {
-                            memcpy(pDeviceMemory + i * paddedWidth * 4, pData + i * realWidth * 4, (ulong)realWidth * 4);
+                            for(int j = 0; j <= realWidth-1; j++) {
+                                //With this method, each time there's a word being copied, rathre than a byte, thus in theory this should be faster
+                                *(UInt32*)(pDeviceMemory + i * paddedWidth * 4 + j * 4) = *(UInt32*)(pData + i * realWidth * 4 + j * 4);
+                            }
                         }
                     }
                 }
@@ -80,10 +83,6 @@ namespace org.flamerat.GrandWild {
                 device.UnmapMemory(memory);
             }
         }
-
-        [System.Runtime.InteropServices.DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl, SetLastError = false)]
-        [System.Security.SuppressUnmanagedCodeSecurity]
-        private unsafe static extern void* memcpy(void* dst, void* src, ulong count);
 
         public void DisposeRamData() {
             _Data = null;
