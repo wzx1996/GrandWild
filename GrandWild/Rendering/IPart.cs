@@ -11,8 +11,12 @@ namespace org.flamerat.GrandWild.Rendering {
         void Draw(CommandBuffer commandBuffer, mat4 parentModelMatrix);
     }
 
+
+}
+
+namespace org.flamerat.GrandWild {
     static class VulkanCommandBufferDrawIPartExtension {
-        public static void CmdDrawPartGw(this CommandBuffer commandBuffer, IPart part, mat4 modelMatrix) {
+        public static void CmdDrawPartGw(this CommandBuffer commandBuffer, Rendering.IPart part, mat4 modelMatrix) {
             part.Draw(commandBuffer, modelMatrix);
         }
     }

@@ -8,20 +8,34 @@ using Vulkan;
 
 namespace org.flamerat.GrandWild.Rendering {
     class Structure:IPart {
-        public void DisposeRamData() {
-            throw new NotImplementedException();
-        }
 
         public virtual void Draw(CommandBuffer commandBuffer) {
-            throw new NotImplementedException();
+            Draw(commandBuffer, new mat4(1.0f));
         }
 
         public void Draw(CommandBuffer commandBuffer, mat4 parentModelMatrix) {
-            throw new NotImplementedException();
+            foreach (var subpart in _SubParts) commandBuffer.CmdDrawPartGw(subpart.Part, parentModelMatrix * subpart.ModelMatrix);
         }
 
-        public void SendToGpu(Device device, DeviceMemory memory, DeviceSize offset) {
-            throw new NotImplementedException();
+        public IEnumerable<IGpuBuffer> GetIndexBuffers() {
+            var bufferArrays = from subpart in _SubParts select subpart.Part.GetIndexBuffers();
+            var bufferList = new List<IGpuBuffer>();
+            foreach (var bufferArray in bufferArrays) bufferList.Union(bufferArray);
+            return bufferList;
+        }
+
+        public IEnumerable<IGpuImage> GetTextureImages() {
+            var imageArrays = from subpart in _SubParts select subpart.Part.GetTextureImages();
+            var imageList = new List<IGpuImage>();
+            foreach (var imageArray in imageArrays) imageList.Union(imageArray);
+            return imageList;
+        }
+
+        public IEnumerable<IGpuBuffer> GetVertexBuffers() {
+            var bufferArrays = from subpart in _SubParts select subpart.Part.GetVertexBuffers();
+            var bufferList = new List<IGpuBuffer>();
+            foreach (var bufferArray in bufferArrays) bufferList.Union(bufferArray);
+            return bufferList;
         }
 
         public struct SubPart {
@@ -35,11 +49,11 @@ namespace org.flamerat.GrandWild.Rendering {
             public mat4 ModelMatrix {
                 get {
                     mat4 result;
-                    glm.translate(result, Origin);
+                    glm.translate(result, new vec3(-Origin.x,-Origin.y,-Origin.z));
                     glm.scale(result, Scale);
-                    glm.rotate(result, XRotation, xAxis);
-                    glm.rotate(result, YRotation, yAxis);
-                    glm.rotate(result, ZRotation, zAxis);
+                    glm.rotate(result, glm.degrees(XRotation), xAxis);
+                    glm.rotate(result, glm.degrees(YRotation), yAxis);
+                    glm.rotate(result, glm.degrees(ZRotation), zAxis);
                     glm.translate(result, Position);
                     return result;
                 }
@@ -48,7 +62,8 @@ namespace org.flamerat.GrandWild.Rendering {
             private static readonly vec3 yAxis = new vec3(0, 1, 0);
             private static readonly vec3 zAxis = new vec3(0, 0, 1);
         }
-        
+
+        protected SubPart[] _SubParts;
 
     }
 }
