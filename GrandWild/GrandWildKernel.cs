@@ -154,12 +154,12 @@ namespace org.flamerat.GrandWild
         }
         public const uint Vec4Size = 16;
         public const uint Vec2Size = 8;
-        public readonly Vulkan.VertexInputBindingDescription VertexBindingDescription = new Vulkan.VertexInputBindingDescription {
+        public static readonly Vulkan.VertexInputBindingDescription VertexBindingDescription = new Vulkan.VertexInputBindingDescription {
             InputRate = Vulkan.VertexInputRate.Vertex,
             Binding = 0,
             Stride = 3 * Vec4Size + Vec2Size
         };
-        public readonly Vulkan.VertexInputAttributeDescription[] VertexAttributeDescription = new Vulkan.VertexInputAttributeDescription[4] {
+        public static readonly Vulkan.VertexInputAttributeDescription[] VertexAttributeDescription = new Vulkan.VertexInputAttributeDescription[4] {
             new Vulkan.VertexInputAttributeDescription {
                 Format=Vulkan.Format.R32G32B32A32Sfloat,
                 Binding=0,

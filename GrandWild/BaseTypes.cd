@@ -1,19 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="org.flamerat.GrandWild.Rendering.VulkanCommandBufferDrawIRenderableExtension" Collapsed="true">
-    <Position X="11.25" Y="1.25" Width="4" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Rendering\IRenderable.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="org.flamerat.GrandWild.Rendering.VulkanCommandBufferDrawIPartExtension" Collapsed="true">
-    <Position X="11.25" Y="0.5" Width="4" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Rendering\IPart.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="org.flamerat.GrandWild.Rendering.Structure" Collapsed="true">
     <Position X="7.75" Y="5.75" Width="1.5" />
     <Compartments>
@@ -27,7 +13,7 @@
       </Struct>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAgABAAAAAAAAAAIAACAAAAAAAAAAABA=</HashCode>
       <FileName>Rendering\Structure.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -35,7 +21,7 @@
   <Class Name="org.flamerat.GrandWild.Rendering.Model" Collapsed="true">
     <Position X="9.5" Y="5.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>gAAAAAAAAAAIAgAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <HashCode>gAAAAQAAAAAIAgAAAAAAAAAAAAAAAAAAAAIAAQAAAAA=</HashCode>
       <FileName>Rendering\Model.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -50,7 +36,7 @@
   <Class Name="org.flamerat.GrandWild.VertexBuffer&lt;T&gt;" Collapsed="true">
     <Position X="1.25" Y="3.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAACAAAAAABAAAAAAAAAAAAAAABAAAAIEAAAAQAA=</HashCode>
+      <HashCode>QAAAAACAAAAAgBAAAAAAAAAAAAAAABAAAAIEAAAAQAA=</HashCode>
       <FileName>VertexBuffer.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -58,7 +44,7 @@
   <Class Name="org.flamerat.GrandWild.IndexBuffer" Collapsed="true">
     <Position X="1.25" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAABAAACIEAAAAQAA=</HashCode>
+      <HashCode>QAAAAACAAAAAgAAAAAAAAAAAAAAAABAAACIEAAAAQAA=</HashCode>
       <FileName>IndexBuffer.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -66,7 +52,7 @@
   <Interface Name="org.flamerat.GrandWild.IGpuStoredObject" Collapsed="true">
     <Position X="6" Y="0.75" Width="1.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAA=</HashCode>
       <FileName>GpuStoredObjectMemory.cs</FileName>
     </TypeIdentifier>
   </Interface>
@@ -80,14 +66,14 @@
   <Interface Name="org.flamerat.GrandWild.IGpuImage" Collapsed="true">
     <Position X="3" Y="4.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
       <FileName>GpuStoredObjectMemory.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="org.flamerat.GrandWild.Rendering.IRenderable" Collapsed="true">
     <Position X="7.75" Y="3.25" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAgABAAAAAAAAAAIAACAAAAAAAAAAAAA=</HashCode>
       <FileName>Rendering\IRenderable.cs</FileName>
     </TypeIdentifier>
   </Interface>

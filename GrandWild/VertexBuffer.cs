@@ -28,11 +28,16 @@ using Vulkan;
 namespace org.flamerat.GrandWild {
 
     class VertexBuffer<T>:IGpuBuffer where T:struct {
+        public static implicit operator Vulkan.Buffer(VertexBuffer<T> vertexBuffer) {
+            return vertexBuffer.Buffer;
+        }
         public Vulkan.Buffer Buffer {
             get { return _VBO; }
         }
+        public uint Size { get; private set; }
         public T[] Data { get { return _Data; } }
         public VertexBuffer(Device device,T[] data) {
+            Size = (uint)data.Length;
             BufferCreateInfo bufferInfo = new BufferCreateInfo {
                 Usage = BufferUsageFlags.VertexBuffer,
                 Size = System.Runtime.InteropServices.Marshal.SizeOf<T>()*data.Length,

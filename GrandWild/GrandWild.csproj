@@ -75,12 +75,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entity\Entity.cs" />
     <Compile Include="GpuStoredObjectMemory.cs" />
     <Compile Include="IndexBuffer.cs" />
     <Compile Include="Rendering\IPart.cs" />
     <Compile Include="Rendering\IRenderable.cs" />
     <Compile Include="Rendering\Model.cs" />
-    <Compile Include="Rendering\ObjModel.cs" />
+    <Compile Include="Rendering\ModelMatrixPool.cs" />
     <Compile Include="Rendering\Structure.cs" />
     <Compile Include="TextureImage.cs" />
     <Compile Include="VertexBuffer.cs" />

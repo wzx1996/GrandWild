@@ -7,11 +7,16 @@ using Vulkan;
 
 namespace org.flamerat.GrandWild {
     class IndexBuffer : IGpuBuffer {
+        public static implicit operator Vulkan.Buffer(IndexBuffer indexBuffer) {
+            return indexBuffer.Buffer;
+        }
         public Vulkan.Buffer Buffer {
             get { return _Buffer; }
         }
+        public uint Size { get; private set; }
         public UInt16[] Data { get { return _Data; } }
         public IndexBuffer(Device device, UInt16[] data) {
+            Size =(uint) data.Length;
             BufferCreateInfo bufferInfo = new BufferCreateInfo {
                 Usage = BufferUsageFlags.IndexBuffer,
                 Size = sizeof(UInt16) * data.Length,

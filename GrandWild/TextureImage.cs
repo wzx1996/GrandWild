@@ -7,6 +7,9 @@ using Vulkan;
 using GlmNet;
 
 namespace org.flamerat.GrandWild {
+    public static implicit operator Vulkan.ImageView(TextureImage textureImage) {
+        return textureImage.ImageView;
+    }
     class TextureImage : IGpuImage {
         public Image Image {
             get {
