@@ -51,9 +51,9 @@ namespace org.flamerat.GrandWild.Rendering {
                     mat4 result;
                     glm.translate(result, new vec3(-Origin.x,-Origin.y,-Origin.z));
                     glm.scale(result, Scale);
-                    glm.rotate(result, glm.degrees(XRotation), xAxis);
-                    glm.rotate(result, glm.degrees(YRotation), yAxis);
-                    glm.rotate(result, glm.degrees(ZRotation), zAxis);
+                    glm.rotate(result, glm.radians(XRotation), xAxis);
+                    glm.rotate(result, glm.radians(YRotation), yAxis);
+                    glm.rotate(result, glm.radians(ZRotation), zAxis);
                     glm.translate(result, Position);
                     return result;
                 }

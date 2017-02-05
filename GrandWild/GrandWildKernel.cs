@@ -107,6 +107,8 @@ namespace org.flamerat.GrandWild
 
         public bool IsRunning { get; private set; } = false;
 
+        public TextureImage DefaultTexture { get; private set; }
+
         private Vulkan.Instance _Instance;
         private System.Windows.Forms.Form _DisplayForm;
         private Vulkan.SurfaceKhr _Surface;
@@ -127,7 +129,8 @@ namespace org.flamerat.GrandWild
         private Vulkan.Image _DepthBufferImage;
         private Vulkan.ImageView _DepthBufferImageView;
         private Vulkan.Format _DepthImageFormat;
-        private Vulkan.DescriptorSetLayout _RenderingInfoSetLayout; //TEST_STUB
+        private Vulkan.DescriptorSetLayout _SceneInfoSetLayout;
+        private Vulkan.DescriptorSetLayout _TextureSamplerSetLayout;
         private Vulkan.DescriptorPool _RenderingInfoPool; //TEST_STUB
         private Vulkan.DescriptorSet[] _RenderingInfoSets;
         private Vulkan.PipelineLayout _RenderingPipelineLayout;
@@ -147,10 +150,10 @@ namespace org.flamerat.GrandWild
         private UniformBuffer<BasicRenderingInfo> _RenderingInfoBuffer;
 
         public struct Vertex {
-            vec4 Position;
-            vec4 Color;
-            vec4 Normal;
-            vec2 Texture;
+            public vec4 Position;
+            public vec4 Color;
+            public vec4 Normal;
+            public vec2 Texture;
         }
         public const uint Vec4Size = 16;
         public const uint Vec2Size = 8;
@@ -191,6 +194,7 @@ namespace org.flamerat.GrandWild
             _InitInstance();
             _InitSurface();
             _InitDevice();
+            
             _InitSwapchain();
             _InitDepthBuffer();
             _InitPipelineLayout();
@@ -426,27 +430,52 @@ namespace org.flamerat.GrandWild
         //Uniform buffer ∈ Descriptor ∈ Descritor set ∈ Pipeline layout
         //TEST_STUB
         private void _InitPipelineLayout() {
-            _RenderingInfoBuffer = new UniformBuffer<BasicRenderingInfo>(_PhysicalDevice, _Device, 1);
-            Vulkan.DescriptorSetLayoutBinding[] renderingSetLayoutBindings = new Vulkan.DescriptorSetLayoutBinding[1];
 
-            renderingSetLayoutBindings[0].Binding = 0;
-            renderingSetLayoutBindings[0].DescriptorType = Vulkan.DescriptorType.UniformBuffer;
-            renderingSetLayoutBindings[0].DescriptorCount = 1;
-            renderingSetLayoutBindings[0].StageFlags = Vulkan.ShaderStageFlags.Vertex;
-
-            Vulkan.DescriptorSetLayoutCreateInfo renderSetLayoutInfo = new Vulkan.DescriptorSetLayoutCreateInfo {
+            _SceneInfoSetLayout = _Device.CreateDescriptorSetLayout(new Vulkan.DescriptorSetLayoutCreateInfo {
                 BindingCount = 1,
-                Bindings = renderingSetLayoutBindings
-            };
+                Bindings = new Vulkan.DescriptorSetLayoutBinding[1] {
+                    new Vulkan.DescriptorSetLayoutBinding {
+                        Binding=0,
+                        DescriptorType=Vulkan.DescriptorType.UniformBuffer,
+                        DescriptorCount=1,
+                        StageFlags=Vulkan.ShaderStageFlags.Vertex|Vulkan.ShaderStageFlags.Fragment
+                    }
+                }
+            });
 
-            _RenderingInfoSetLayout = _Device.CreateDescriptorSetLayout(renderSetLayoutInfo);
+            _TextureSamplerSetLayout = _Device.CreateDescriptorSetLayout(new Vulkan.DescriptorSetLayoutCreateInfo {
+                BindingCount = 1,
+                Bindings = new Vulkan.DescriptorSetLayoutBinding[1] {
+                    new Vulkan.DescriptorSetLayoutBinding {
+                        Binding=0,
+                        DescriptorType=Vulkan.DescriptorType.Sampler,
+                        DescriptorCount=1,
+                        StageFlags=Vulkan.ShaderStageFlags.Fragment
+                    }
+                }
+            });
 
-            Vulkan.PipelineLayoutCreateInfo renderingPipelineLayoutInfo = new Vulkan.PipelineLayoutCreateInfo {
-                PushConstantRangeCount = 0,
-                SetLayoutCount = 1,
-                SetLayouts = new Vulkan.DescriptorSetLayout[1] { _RenderingInfoSetLayout } 
+            Vulkan.PipelineLayoutCreateInfo pipelineLayoutInfo = new Vulkan.PipelineLayoutCreateInfo {
+                PushConstantRangeCount = 2,
+                PushConstantRanges = new Vulkan.PushConstantRange[2] {
+                    new Vulkan.PushConstantRange {
+                        StageFlags=Vulkan.ShaderStageFlags.Vertex,
+                        Size=16*4,
+                        Offset=0
+                    },
+                    new Vulkan.PushConstantRange {
+                        StageFlags=Vulkan.ShaderStageFlags.Vertex,
+                        Size=16*4,
+                        Offset=16*4
+                    }
+                },
+                SetLayoutCount = 2,
+                SetLayouts = new Vulkan.DescriptorSetLayout[2] {
+                    _SceneInfoSetLayout,
+                    _TextureSamplerSetLayout
+                }
             };
-            _RenderingPipelineLayout = _Device.CreatePipelineLayout(renderingPipelineLayoutInfo);
+            _RenderingPipelineLayout = _Device.CreatePipelineLayout(pipelineLayoutInfo);
 
         }
 

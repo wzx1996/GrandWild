@@ -20,7 +20,7 @@ namespace org.flamerat.GrandWild.Rendering {
             
 
             commandBuffer.CmdSetModelMatrixGw(parentModelMatrix);
-            commandBuffer.CmdSelectTextureImageGw(_TextureImage);
+            commandBuffer.CmdSelectTextureImageGw(_TextureImage.ImageView);
             commandBuffer.CmdBindVertexBuffer(0, _VertexBufferObject.Buffer, 0);
             commandBuffer.CmdBindIndexBuffer(_IndexBuffer, 0, IndexType.Uint16);
             commandBuffer.CmdDrawIndexed(_IndexBuffer.Size, 1, 0, 0, 0);

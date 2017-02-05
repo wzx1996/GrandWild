@@ -7,10 +7,8 @@ using Vulkan;
 using GlmNet;
 
 namespace org.flamerat.GrandWild {
-    public static implicit operator Vulkan.ImageView(TextureImage textureImage) {
-        return textureImage.ImageView;
-    }
-    class TextureImage : IGpuImage {
+
+    public class TextureImage : IGpuImage {
         public Image Image {
             get {
                 return _Image;
@@ -23,7 +21,7 @@ namespace org.flamerat.GrandWild {
             }
         }
 
-        public TextureImage(Device device, byte[,,] data, bool optimalTiling=false) {
+        public TextureImage(Device device, byte[,,/* 4 */] data, bool optimalTiling=false) {
             _Data = data;
             _OptimalTiling = optimalTiling;
             ImageCreateInfo imageInfo = new ImageCreateInfo {
@@ -34,7 +32,7 @@ namespace org.flamerat.GrandWild {
                 },
                 MipLevels = 1,
                 ArrayLayers = 1,
-                Format = Format.R8G8B8A8Snorm,
+                Format = Format.R8G8B8A8Unorm,
                 Tiling = (optimalTiling?ImageTiling.Optimal:ImageTiling.Linear),
                 InitialLayout = ImageLayout.Preinitialized,
                 SharingMode = SharingMode.Exclusive,
@@ -90,7 +88,7 @@ namespace org.flamerat.GrandWild {
         }
 
         private bool _OptimalTiling;
-        private byte[,,] _Data;
+        private byte[,,/* 4 */] _Data;
         private Image _Image;
         
         private ImageView _ImageView;

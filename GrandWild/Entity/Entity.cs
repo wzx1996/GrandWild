@@ -20,6 +20,9 @@ namespace org.flamerat.GrandWild.Entity {
             _Position += relativePosition;
             OnMove(this, oldPosition, _Position);
         }
+        public void MoveForSelfCoordinate(float forward,float right,float up) {
+
+        }
 
         public delegate void OnRotateEvent(Entity sender, float oldXR, float oldYR, float oldZR,float newXR,float newYR,float newZR);
         public event OnRotateEvent OnRotate;
@@ -52,6 +55,9 @@ namespace org.flamerat.GrandWild.Entity {
             if (_XRotation < -180) _XRotation += 360;
             if (_XRotation < -180) _YRotation += 360;
             if (_XRotation < -180) _ZRotation += 360;
+        }
+        public void RotateForSelfCoordinate(float pan,float pitch,float tilt) {
+
         }
 
         public delegate void OnDrawEvent(Entity sender);
@@ -87,9 +93,9 @@ namespace org.flamerat.GrandWild.Entity {
             get {
                 mat4 result=new mat4(1);
                 glm.scale(result, new vec3(_Scale));
-                glm.rotate(result, glm.degrees(_XRotation), new vec3(1, 0, 0));
-                glm.rotate(result, glm.degrees(_YRotation), new vec3(0, 1, 0));
-                glm.rotate(result, glm.degrees(_ZRotation), new vec3(0, 0, 1));
+                glm.rotate(result, glm.radians(_XRotation), new vec3(1, 0, 0));
+                glm.rotate(result, glm.radians(_YRotation), new vec3(0, 1, 0));
+                glm.rotate(result, glm.radians(_ZRotation), new vec3(0, 0, 1));
                 glm.translate(result, _Position);
                 return result;
             }

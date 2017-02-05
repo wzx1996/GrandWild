@@ -75,14 +75,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandBufferPushConstantMvpcMatrixExtension.cs" />
     <Compile Include="Entity\Entity.cs" />
     <Compile Include="GpuStoredObjectMemory.cs" />
     <Compile Include="IndexBuffer.cs" />
+    <Compile Include="ITimerBased.cs" />
     <Compile Include="Rendering\IPart.cs" />
     <Compile Include="Rendering\IRenderable.cs" />
     <Compile Include="Rendering\Model.cs" />
-    <Compile Include="Rendering\ModelMatrixPool.cs" />
     <Compile Include="Rendering\Structure.cs" />
+    <Compile Include="Resource\Image.cs" />
+    <Compile Include="Resource\IResourceLoader.cs" />
+    <Compile Include="Resource\WaveformObj.cs" />
+    <Compile Include="Scene\Scene.cs" />
     <Compile Include="TextureImage.cs" />
     <Compile Include="VertexBuffer.cs" />
     <Compile Include="ShaderStage.cs" />
@@ -114,6 +119,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DefaultTexture128.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
