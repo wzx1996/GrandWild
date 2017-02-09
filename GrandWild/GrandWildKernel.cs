@@ -126,9 +126,14 @@ namespace org.flamerat.GrandWild
             get {
                 return _FocusedScene;
             }set {
-                _FocusedScene.LoseFocusBehavior();
-                _FocusedScene = value;
-                _FocusedScene.GetFocusBehavior();
+                if (_FocusedScene != null) {
+                    _FocusedScene.BelongingKernels.Remove(this);
+                    _FocusedScene.LoseFocusBehavior();
+                    _FocusedScene = value;
+                    _FocusedScene.GetFocusBehavior();
+                    _FocusedScene.BelongingKernels.Add(this);
+                }
+                
             }
         }
 
@@ -138,6 +143,9 @@ namespace org.flamerat.GrandWild
             private set { _IsRunning = value; }
         }
         private volatile bool _IsRunning = false;
+        public void Stop() {
+            _IsRunning = false;
+        }
 
         public delegate void OnKeyEvent(GrandWildKernel sender, System.Windows.Forms.Keys key);
         public event OnKeyEvent OnKeyDown;
@@ -870,6 +878,8 @@ namespace org.flamerat.GrandWild
                 if (disposing) {
 
                 }
+
+                Stop();
 
                 _SceneInfoBuffer.Dispose();
                 _Device.DestroyFence(_DrawFence);

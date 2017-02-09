@@ -7,6 +7,8 @@ using GlmNet;
 
 namespace org.flamerat.GrandWild.Scene {
     public class Scene {
+        public List<GrandWildKernel> BelongingKernels = new List<GrandWildKernel>();
+
         public Rendering.IRenderable[] RequiredRenderables;
 
         private List<Entity.Entity> _Entities = new List<Entity.Entity>();
