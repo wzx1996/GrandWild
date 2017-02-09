@@ -21,6 +21,8 @@ namespace org.flamerat.GrandWild {
             }
         }
 
+        public readonly ImageLayout Layout=ImageLayout.Preinitialized;
+
         public TextureImage(Device device, byte[,,/* 4 */] data, bool optimalTiling=false) {
             _Data = data;
             _OptimalTiling = optimalTiling;

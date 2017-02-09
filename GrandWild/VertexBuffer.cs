@@ -27,7 +27,7 @@ using Vulkan;
 
 namespace org.flamerat.GrandWild {
 
-    class VertexBuffer<T>:IGpuBuffer where T:struct {
+    public class VertexBuffer<T>:IGpuBuffer where T:struct {
         public static implicit operator Vulkan.Buffer(VertexBuffer<T> vertexBuffer) {
             return vertexBuffer.Buffer;
         }

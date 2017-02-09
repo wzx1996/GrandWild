@@ -7,7 +7,8 @@ using GlmNet;
 using Vulkan;
 
 namespace org.flamerat.GrandWild.Entity {
-    class Entity: Rendering.Structure {
+    public class Entity: Rendering.Structure {
+        public List<Scene.Scene> BelongingScenes = new List<Scene.Scene>();
         public delegate void OnMoveEvent(Entity sender, vec3 oldPosition, vec3 newPosition);
         public event OnMoveEvent OnMove;
         public void MoveTo(vec3 position) {
@@ -21,7 +22,13 @@ namespace org.flamerat.GrandWild.Entity {
             OnMove(this, oldPosition, _Position);
         }
         public void MoveForSelfCoordinate(float forward,float right,float up) {
-
+            var selfMovement = new vec4(right, up, -forward, 1);
+            mat4 rotateMatrix = new mat4(1);
+            glm.rotate(rotateMatrix, glm.radians(_XRotation), new vec3(1, 0, 0));
+            glm.rotate(rotateMatrix, glm.radians(_YRotation), new vec3(0, 1, 0));
+            glm.rotate(rotateMatrix, glm.radians(_ZRotation), new vec3(0, 0, 1));
+            selfMovement = rotateMatrix * selfMovement;
+            MoveFor(new vec3(selfMovement));
         }
 
         public delegate void OnRotateEvent(Entity sender, float oldXR, float oldYR, float oldZR,float newXR,float newYR,float newZR);
@@ -57,7 +64,7 @@ namespace org.flamerat.GrandWild.Entity {
             if (_XRotation < -180) _ZRotation += 360;
         }
         public void RotateForSelfCoordinate(float pan,float pitch,float tilt) {
-
+            throw new NotImplementedException();
         }
 
         public delegate void OnDrawEvent(Entity sender);
@@ -104,5 +111,7 @@ namespace org.flamerat.GrandWild.Entity {
             get { return base._SubParts; }
             set { base._SubParts = value; }
         }
+
     }
+
 }

@@ -20,7 +20,7 @@
 using System;
 
 namespace org.flamerat.GrandWild {
-    class UniformBuffer<T> where T:struct {
+    public class UniformBuffer<T>:IDisposable where T:struct {
 
         /// <summary>
         /// The information for updating descriptor sets.
@@ -87,9 +87,6 @@ namespace org.flamerat.GrandWild {
             _Device.UnmapMemory(_UniformBufferMemory);
         }
 
-        ~UniformBuffer() {
-            _Device.FreeMemory(_UniformBufferMemory);
-        }
         private readonly ulong _StructureSize = (ulong)System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
         private uint _Size;
         private Vulkan.PhysicalDevice _PhysicalDevice;
@@ -97,5 +94,32 @@ namespace org.flamerat.GrandWild {
         private Vulkan.DeviceSize _MemorySize;
         private Vulkan.DeviceMemory _UniformBufferMemory;
         private Vulkan.Buffer[] _Buffer;
+
+        #region IDisposable Support
+        private bool disposedValue = false; // 要检测冗余调用
+
+        protected virtual void Dispose(bool disposing) {
+            if (!disposedValue) {
+                if (disposing) {
+                    
+                }
+                _Device.FreeMemory(_UniformBufferMemory);
+                foreach (var buffer in _Buffer) _Device.DestroyBuffer(buffer);
+
+                disposedValue = true;
+            }
+        }
+
+        ~UniformBuffer() {
+            Dispose(false);
+        }
+
+        // 添加此代码以正确实现可处置模式。
+        public void Dispose() {
+            // 请勿更改此代码。将清理代码放入以上 Dispose(bool disposing) 中。
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

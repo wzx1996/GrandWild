@@ -6,11 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace org.flamerat.GrandWild {
-    interface ITimerBased {
-        void OnTimeTick(Timer timer);
+    public interface ITimerBased {
+        void TimeTickBehavior(Timer timer);
     }
 
-    class Timer {
+    public class Timer {
 
         public delegate void OnTimeTickEvent(Timer timer);
         public event OnTimeTickEvent OnTimeTick;
@@ -118,6 +118,6 @@ namespace org.flamerat.GrandWild {
         private DateTime _PreviousTickTime;
         private float _TimeFlowSpeedScale = 1.0F;
         private TimeSpan _TargetInteval = new TimeSpan(0, 0, 0, 0, 50);
-        private bool _Busy=false;
+        private volatile bool _Busy=false;
     }
 }

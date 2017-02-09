@@ -27,7 +27,7 @@ using Vulkan;
 
 namespace org.flamerat.GrandWild {
 
-    class ShaderStage {
+    public class ShaderStage {
         public PipelineShaderStageCreateInfo Info { get; protected set; }
 
 

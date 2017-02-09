@@ -7,7 +7,7 @@ using GlmNet;
 using Vulkan;
 
 namespace org.flamerat.GrandWild.Rendering {
-    interface IPart:IRenderable {
+    public interface IPart:IRenderable {
         void Draw(CommandBuffer commandBuffer, mat4 parentModelMatrix);
     }
 
@@ -15,7 +15,7 @@ namespace org.flamerat.GrandWild.Rendering {
 }
 
 namespace org.flamerat.GrandWild {
-    static class VulkanCommandBufferDrawIPartExtension {
+    public static class VulkanCommandBufferDrawIPartExtension {
         public static void CmdDrawPartGw(this CommandBuffer commandBuffer, Rendering.IPart part, mat4 modelMatrix) {
             part.Draw(commandBuffer, modelMatrix);
         }

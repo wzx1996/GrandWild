@@ -17,7 +17,7 @@ using GlmNet;
 using Vulkan;
 using System.Runtime.InteropServices;
 namespace org.flamerat.GrandWild {
-    static class CommandBufferPushConstantMvpcMatrixExtension {
+    public static class CommandBufferPushConstantMvpcMatrixExtension {
         private static Dictionary<CommandBuffer, uint> _ModelMatrixPushOffset;
         private static Dictionary<CommandBuffer, uint> _VpcMatrixPushOffset;
         private static Dictionary<CommandBuffer, PipelineLayout> _PipelineLayout;

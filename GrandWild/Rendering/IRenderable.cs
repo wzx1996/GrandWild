@@ -7,7 +7,7 @@ using GlmNet;
 using Vulkan;
 
 namespace org.flamerat.GrandWild.Rendering {
-    interface IRenderable {
+    public interface IRenderable {
         void Draw(CommandBuffer commandBuffer);
         IEnumerable<IGpuBuffer> GetVertexBuffers();
         IEnumerable<IGpuBuffer> GetIndexBuffers();
@@ -18,8 +18,8 @@ namespace org.flamerat.GrandWild.Rendering {
 }
 
 namespace org.flamerat.GrandWild {
-    static class VulkanCommandBufferDrawIRenderableExtension {
-        static void CmdDrawRenderableGw(this CommandBuffer commandBuffer, Rendering.IRenderable target) {
+    public static class VulkanCommandBufferDrawIRenderableExtension {
+        public static void CmdDrawRenderableGw(this CommandBuffer commandBuffer, Rendering.IRenderable target) {
             target.Draw(commandBuffer);
         }
     }

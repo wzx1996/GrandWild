@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Vulkan;
 
 namespace org.flamerat.GrandWild {
-    class IndexBuffer : IGpuBuffer {
+    public class IndexBuffer : IGpuBuffer {
         public static implicit operator Vulkan.Buffer(IndexBuffer indexBuffer) {
             return indexBuffer.Buffer;
         }

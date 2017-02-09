@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandBufferPushConstantMvpcMatrixExtension.cs" />
+    <Compile Include="Entity\TimerBasedEntity.cs" />
     <Compile Include="Entity\Entity.cs" />
     <Compile Include="GpuStoredObjectMemory.cs" />
     <Compile Include="IndexBuffer.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="UniformBuffer.cs" />
     <Compile Include="GrandWildKernel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="CommandBufferSelectTextureImageExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BaseTypes.cd" />

@@ -8,7 +8,7 @@ using Vulkan;
 using org.flamerat.GrandWild;
 
 namespace org.flamerat.GrandWild.Rendering {
-    class Model:IPart {
+    public class Model:IPart {
         protected VertexBuffer<GrandWildKernel.Vertex> _VertexBufferObject;
         protected IndexBuffer _IndexBuffer;
         protected TextureImage _TextureImage; //TODO implement TextureImage class
@@ -20,7 +20,7 @@ namespace org.flamerat.GrandWild.Rendering {
             
 
             commandBuffer.CmdSetModelMatrixGw(parentModelMatrix);
-            commandBuffer.CmdSelectTextureImageGw(_TextureImage.ImageView);
+            commandBuffer.CmdSelectTextureIamgeGw(_TextureImage);
             commandBuffer.CmdBindVertexBuffer(0, _VertexBufferObject.Buffer, 0);
             commandBuffer.CmdBindIndexBuffer(_IndexBuffer, 0, IndexType.Uint16);
             commandBuffer.CmdDrawIndexed(_IndexBuffer.Size, 1, 0, 0, 0);

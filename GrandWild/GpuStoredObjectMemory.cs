@@ -6,25 +6,46 @@ using System.Threading.Tasks;
 using Vulkan;
 
 namespace org.flamerat.GrandWild {
-    interface IGpuStoredObject {
+    public interface IGpuStoredObject {
         void DisposeRamData();
         void SendToGpu(Device device, DeviceMemory memory, DeviceSize offset);
     }
-    interface IGpuBuffer : IGpuStoredObject {
+    public interface IGpuBuffer : IGpuStoredObject {
         Vulkan.Buffer Buffer { get; }
     }
-    interface IGpuImage : IGpuStoredObject {
+    public interface IGpuImage : IGpuStoredObject {
         Vulkan.Image Image { get; }
         Vulkan.ImageView ImageView { get; }
     }
-    abstract class GpuStoredObjectMemory {
-        ~GpuStoredObjectMemory() {
-            _Device.FreeMemory(_DeviceMemory);
-        }
+    public abstract class GpuStoredObjectMemory:IDisposable {
+
         protected DeviceMemory _DeviceMemory;
         protected Device _Device;
+
+        #region IDisposable Support
+        private bool disposedValue = false; 
+
+        protected virtual void Dispose(bool disposing) {
+            if (!disposedValue) {
+                if (disposing) {
+                }
+                _Device.FreeMemory(_DeviceMemory);
+
+                disposedValue = true;
+            }
+        }
+
+        ~GpuStoredObjectMemory() {
+            Dispose(false);
+        }
+        
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
-    class GpuBufferMemory : GpuStoredObjectMemory {
+    public class GpuBufferMemory : GpuStoredObjectMemory {
         public GpuBufferMemory(PhysicalDevice physicalDevice, Device device, IGpuBuffer[] buffers) {
             _Device = device;
             DeviceSize[] bufferSize = new DeviceSize[buffers.Length];
@@ -60,7 +81,7 @@ namespace org.flamerat.GrandWild {
             }
         }
     }
-    class GpuImageMemory : GpuStoredObjectMemory {
+    public class GpuImageMemory : GpuStoredObjectMemory {
         public GpuImageMemory(PhysicalDevice physicalDevice, Device device, IGpuImage[] images) {
             _Device = device;
             DeviceSize[] ImageSize = new DeviceSize[images.Length];

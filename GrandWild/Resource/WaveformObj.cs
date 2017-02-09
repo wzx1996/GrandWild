@@ -7,7 +7,7 @@ using GlmNet;
 
 namespace org.flamerat.GrandWild.Resource {
     public class WaveformObj:IResourceLoader {
-        public WaveformObj(string fileName,bool clockWise=false) {
+        public WaveformObj(string fileName,bool clockWise=false,bool flipTextureVertical=true) {
             var objFileStream = new System.IO.StreamReader(fileName);
             List<vec4> rawVertexes=new List<vec4>();
             List<vec4> rawNormals = new List<vec4>();
@@ -134,6 +134,10 @@ namespace org.flamerat.GrandWild.Resource {
                 }
             }
             EndOfReadingMachine: objFileStream.Close();
+
+            if (flipTextureVertical) {
+                rawTextures = rawTextures.Select(texture => new vec2(texture.x, 1.0F - texture.y)).ToList();
+            }
 
             List<GrandWildKernel.Vertex> vertexList = new List<GrandWildKernel.Vertex>();
             List<UInt16> indexList = new List<ushort>();

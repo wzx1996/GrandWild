@@ -7,7 +7,7 @@ using GlmNet;
 using Vulkan;
 
 namespace org.flamerat.GrandWild.Rendering {
-    class Structure:IPart {
+    public class Structure:IPart {
 
         public virtual void Draw(CommandBuffer commandBuffer) {
             Draw(commandBuffer, new mat4(1.0f));
@@ -18,24 +18,15 @@ namespace org.flamerat.GrandWild.Rendering {
         }
 
         public IEnumerable<IGpuBuffer> GetIndexBuffers() {
-            var bufferArrays = from subpart in _SubParts select subpart.Part.GetIndexBuffers();
-            var bufferList = new List<IGpuBuffer>();
-            foreach (var bufferArray in bufferArrays) bufferList.Union(bufferArray);
-            return bufferList;
+            return _SubParts.SelectMany(subpart => subpart.Part.GetIndexBuffers()).Distinct();
         }
 
         public IEnumerable<IGpuImage> GetTextureImages() {
-            var imageArrays = from subpart in _SubParts select subpart.Part.GetTextureImages();
-            var imageList = new List<IGpuImage>();
-            foreach (var imageArray in imageArrays) imageList.Union(imageArray);
-            return imageList;
+            return _SubParts.SelectMany(subpart => subpart.Part.GetTextureImages()).Distinct();
         }
 
         public IEnumerable<IGpuBuffer> GetVertexBuffers() {
-            var bufferArrays = from subpart in _SubParts select subpart.Part.GetVertexBuffers();
-            var bufferList = new List<IGpuBuffer>();
-            foreach (var bufferArray in bufferArrays) bufferList.Union(bufferArray);
-            return bufferList;
+            return _SubParts.SelectMany(subpart => subpart.Part.GetVertexBuffers()).Distinct();
         }
 
         public struct SubPart {
