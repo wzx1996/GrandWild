@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GrandWild", "GrandWild\Gran
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderImporter", "ShaderImporter\ShaderImporter.vcxproj", "{543731FE-25E4-4ABD-8DE4-83BB36BD7129}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnRailShooterDemo", "OnRailShooterDemo\OnRailShooterDemo.csproj", "{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,18 @@ Global
 		{543731FE-25E4-4ABD-8DE4-83BB36BD7129}.Release|x64.Build.0 = Release|x64
 		{543731FE-25E4-4ABD-8DE4-83BB36BD7129}.Release|x86.ActiveCfg = Release|Win32
 		{543731FE-25E4-4ABD-8DE4-83BB36BD7129}.Release|x86.Build.0 = Release|Win32
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Debug|x64.Build.0 = Debug|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Debug|x86.Build.0 = Debug|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Release|x64.ActiveCfg = Release|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Release|x64.Build.0 = Release|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Release|x86.ActiveCfg = Release|Any CPU
+		{8A17849C-3D8F-47AF-AB7D-189CF2E590E7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
