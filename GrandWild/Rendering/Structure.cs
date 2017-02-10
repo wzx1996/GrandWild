@@ -14,7 +14,7 @@ namespace org.flamerat.GrandWild.Rendering {
         }
 
         public void Draw(CommandBuffer commandBuffer, mat4 parentModelMatrix) {
-            foreach (var subpart in _SubParts) commandBuffer.CmdDrawPartGw(subpart.Part, parentModelMatrix * subpart.ModelMatrix);
+            foreach (var subpart in _SubParts) if(subpart.Visible) commandBuffer.CmdDrawPartGw(subpart.Part, parentModelMatrix * subpart.ModelMatrix);
         }
 
         public IEnumerable<IGpuBuffer> GetIndexBuffers() {
@@ -31,6 +31,7 @@ namespace org.flamerat.GrandWild.Rendering {
 
         public struct SubPart {
             public IPart Part;
+            public bool Visible;
             public vec3 Position; //<Object origin position in parent coordinate
             public vec3 Origin; //<Object origin position in obejct coordinate
             public vec3 Scale;
