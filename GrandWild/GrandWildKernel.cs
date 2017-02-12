@@ -163,7 +163,11 @@ namespace org.flamerat.GrandWild
 
             _DisplayForm.KeyDown += _KeyDownBehavior;
             _DisplayForm.KeyUp += _KeyUpBehavior;
+            _DisplayForm.FormClosed += _WindowClosedBehavior;
+        }
 
+        private void _WindowClosedBehavior(object sender, System.Windows.Forms.FormClosedEventArgs e) {
+            _IsRunning = false;
         }
 
         private void _KeyUpBehavior(object sender, System.Windows.Forms.KeyEventArgs e) {

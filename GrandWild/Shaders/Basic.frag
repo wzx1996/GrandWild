@@ -21,6 +21,7 @@ layout (location=0) out vec4 OutColor;
 
 void main(){
 	vec4 OutColorRaw=vec4(InColor.rgb*InColor.a,0.0)+texture(Texture,TextureCoord);
+	OutColorRaw=clamp(OutColorRaw,0.0,1.0);
 	float actualFogDensity=Scene.fogDensity*gl_FragCoord.z;
 	OutColor=OutColorRaw*(vec4(1.0,1.0,1.0,1.0)+Brightness*Scene.globalLightColor)*(1-actualFogDensity)+actualFogDensity*Scene.fogColor;
 
