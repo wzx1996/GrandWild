@@ -14,19 +14,19 @@ namespace org.flamerat.GrandWild.Rendering {
         }
 
         public void Draw(CommandBuffer commandBuffer, mat4 parentModelMatrix) {
-            foreach (var subpart in _SubParts) if(subpart.Visible) commandBuffer.CmdDrawPartGw(subpart.Part, parentModelMatrix * subpart.ModelMatrix);
+            foreach (var subpart in SubParts) if(subpart.Visible) commandBuffer.CmdDrawPartGw(subpart.Part, parentModelMatrix * subpart.ModelMatrix);
         }
 
         public IEnumerable<IGpuBuffer> GetIndexBuffers() {
-            return _SubParts.SelectMany(subpart => subpart.Part.GetIndexBuffers()).Distinct();
+            return SubParts.SelectMany(subpart => subpart.Part.GetIndexBuffers()).Distinct();
         }
 
         public IEnumerable<IGpuImage> GetTextureImages() {
-            return _SubParts.SelectMany(subpart => subpart.Part.GetTextureImages()).Distinct();
+            return SubParts.SelectMany(subpart => subpart.Part.GetTextureImages()).Distinct();
         }
 
         public IEnumerable<IGpuBuffer> GetVertexBuffers() {
-            return _SubParts.SelectMany(subpart => subpart.Part.GetVertexBuffers()).Distinct();
+            return SubParts.SelectMany(subpart => subpart.Part.GetVertexBuffers()).Distinct();
         }
 
         public struct SubPart {
@@ -55,7 +55,7 @@ namespace org.flamerat.GrandWild.Rendering {
             private static readonly vec3 zAxis = new vec3(0, 0, 1);
         }
 
-        protected SubPart[] _SubParts;
+        public SubPart[] SubParts;
 
     }
 }
