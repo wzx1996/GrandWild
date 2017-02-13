@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace org.flamerat.OnRailShooterDemo {
-    public class Player : Creature {
+namespace org.flamerat.OnRailShooterDemo.Enemy {
+    public class Enemy : Creature {
     }
 }

@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 using org.flamerat.GrandWild.Entity;
 
 namespace org.flamerat.OnRailShooterDemo {
-    class Creature:TimerBasedEntity {
+    public class Creature : TimerBasedEntity, IHasHitbox {
+        public int HitPoint {get;private set;}
+
+        public void TakeDamage() {
+            throw new System.NotImplementedException();
+        }
+
+        public bool TestIfHit(Entity hitSource) {
+            throw new NotImplementedException();
+        }
     }
 }
