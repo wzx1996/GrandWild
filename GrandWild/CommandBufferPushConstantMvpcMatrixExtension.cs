@@ -18,9 +18,9 @@ using Vulkan;
 using System.Runtime.InteropServices;
 namespace org.flamerat.GrandWild {
     public static class CommandBufferPushConstantMvpcMatrixExtension {
-        private static Dictionary<CommandBuffer, uint> _ModelMatrixPushOffset;
-        private static Dictionary<CommandBuffer, uint> _VpcMatrixPushOffset;
-        private static Dictionary<CommandBuffer, PipelineLayout> _PipelineLayout;
+        private static Dictionary<CommandBuffer, uint> _ModelMatrixPushOffset=new Dictionary<CommandBuffer, uint>();
+        private static Dictionary<CommandBuffer, uint> _VpcMatrixPushOffset=new Dictionary<CommandBuffer, uint>();
+        private static Dictionary<CommandBuffer, PipelineLayout> _PipelineLayout=new Dictionary<CommandBuffer, PipelineLayout>();
         private const uint _SizeOfMat4 = 16 * 4;
         /// <summary>
         /// Prepare the environment to use the PushConstantMvpcMatrixGw extension
