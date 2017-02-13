@@ -101,7 +101,9 @@
     <None Include="BaseTypes.cd" />
     <None Include="packages.config" />
     <None Include="Shaders\Basic.frag" />
-    <None Include="Shaders\Basic.frag.spv" />
+    <None Include="Shaders\Basic.frag.spv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Shaders\Basic.vert" />
     <None Include="Shaders\Basic.vert.spv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
