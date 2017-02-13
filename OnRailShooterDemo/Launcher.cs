@@ -39,4 +39,18 @@ namespace org.flamerat.OnRailShooterDemo {
             }
         }
     }
+
+    [System.AttributeUsage(AttributeTargets.All, Inherited = false, AllowMultiple = false)]
+    public sealed class DescriptionAttribute : Attribute {
+        readonly string _Content;
+        public DescriptionAttribute(string content) {
+            this._Content = content;
+            throw new NotImplementedException();
+        }
+        public string Content {
+            get { return _Content; }
+        }
+
+        public string Author { get; set; }
+    }
 }
