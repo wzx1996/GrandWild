@@ -51,6 +51,22 @@ using GlmNet;
 namespace org.flamerat.GrandWild
 {
     public class GrandWildKernel:IDisposable {
+        public GrandWildKernel() {
+            _DisplayForm = new System.Windows.Forms.Form();
+            _DisplayForm.MaximizeBox = false;
+            _DisplayForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            if (_DisplayForm.ImeMode == System.Windows.Forms.ImeMode.Disable) {
+                _ImeAvailability = false;
+                _ImeMode = System.Windows.Forms.ImeMode.Off;
+            }else {
+                _ImeAvailability = false;
+                _DisplayForm.ImeMode = System.Windows.Forms.ImeMode.Disable;
+            }
+
+            _DisplayForm.KeyDown += _KeyDownBehavior;
+            _DisplayForm.KeyUp += _KeyUpBehavior;
+            _DisplayForm.FormClosed += _WindowClosedBehavior;
+        }
         private string _AppName = "GrandWild 0.2 Application";
         public string AppName {
             get { return _AppName; }
@@ -86,6 +102,21 @@ namespace org.flamerat.GrandWild
                 }
             }
         }
+
+        private float? _AspectRatio = null;
+        public float AspectRatio {
+            get {
+                if (_AspectRatio.HasValue) return _AspectRatio.Value;
+                else return (float)_WindowWidth / (float)_WindowHeight;
+            }
+            set {
+                if(value>0) _AspectRatio = value;
+            }
+        }
+        public void LetAutoAspectRatio() {
+            _AspectRatio = null;
+        }
+
         private bool _IsBorderLess = false;
         public bool IsBorderLess {
             get { return _IsBorderLess; }
@@ -152,19 +183,7 @@ namespace org.flamerat.GrandWild
         public event OnKeyEvent OnKeyUp;
 
 
-        public GrandWildKernel() {
-            if (_DisplayForm.ImeMode == System.Windows.Forms.ImeMode.Disable) {
-                _ImeAvailability = false;
-                _ImeMode = System.Windows.Forms.ImeMode.Off;
-            }else {
-                _ImeAvailability = false;
-                _DisplayForm.ImeMode = System.Windows.Forms.ImeMode.Disable;
-            }
 
-            _DisplayForm.KeyDown += _KeyDownBehavior;
-            _DisplayForm.KeyUp += _KeyUpBehavior;
-            _DisplayForm.FormClosed += _WindowClosedBehavior;
-        }
 
         private void _WindowClosedBehavior(object sender, System.Windows.Forms.FormClosedEventArgs e) {
             _IsRunning = false;
@@ -194,7 +213,7 @@ namespace org.flamerat.GrandWild
         private uint _SwapchainImageCount = 1;
         private Vulkan.SwapchainKhr _Swapchain;
         private Vulkan.Extent2D _SwapchainExtent;
-        private Vulkan.PresentModeKhr _SwapchainPresentMode;
+        //private Vulkan.PresentModeKhr _SwapchainPresentMode;
         private Vulkan.SampleCountFlags _SampleCount = Vulkan.SampleCountFlags.Count1;
         private Vulkan.Image[] _SwapchainImages;
         private Vulkan.ImageView[] _SwapchainImageViews;
@@ -554,6 +573,8 @@ namespace org.flamerat.GrandWild
         }
 
         private void _InitDescriptorSets() {
+            _SceneInfoBuffer = new UniformBuffer<Scene.Scene.SceneInfo>(_PhysicalDevice, _Device, 1);
+
             Vulkan.DescriptorPoolCreateInfo renderingPoolInfo = new Vulkan.DescriptorPoolCreateInfo {
                 MaxSets = 1,
                 PoolSizeCount = 1,
