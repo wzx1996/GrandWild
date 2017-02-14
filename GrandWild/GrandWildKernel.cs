@@ -178,11 +178,16 @@ namespace org.flamerat.GrandWild
             _IsRunning = false;
         }
 
+
+
+
         public delegate void OnKeyEvent(GrandWildKernel sender, System.Windows.Forms.Keys key);
         public event OnKeyEvent OnKeyDown;
         public event OnKeyEvent OnKeyUp;
 
-
+        public Vulkan.Device Device {
+            get { return _Device; }
+        }
 
 
         private void _WindowClosedBehavior(object sender, System.Windows.Forms.FormClosedEventArgs e) {
@@ -894,6 +899,9 @@ namespace org.flamerat.GrandWild
             });
 
         }
+
+
+
 
         #region IDisposable Support
         private bool disposedValue = false; // 要检测冗余调用
