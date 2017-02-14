@@ -24,9 +24,9 @@ namespace org.flamerat.OnRailShooterDemo {
 
             Scene = new GameScene();
 
-
-
             Kernel.Launch();
+
+            Kernel.FocusedScene = Scene;
 
             while (Kernel.IsRunning) ;
 
