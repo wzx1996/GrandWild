@@ -8,27 +8,36 @@ using Forms = System.Windows.Forms;
 
 namespace org.flamerat.OnRailShooterDemo {
     public static class Program {
-        public static GrandWildKernel Kernel { get; private set; }
+        public static GrandWildKernel Kernel {
+            get {
+                if (_Kernel == null || !_Kernel.IsRunning) {
+                    throw new KernelNotLaunchedException();
+                }else {
+                    return _Kernel;
+                }
+            }
+        }
+        private static GrandWildKernel _Kernel = null;
         public static GameScene Scene { get; private set; }
 
         public static int Main(string[] args) {
-            Kernel = new GrandWildKernel();
-            Kernel.AppName = "GrandWild 0.2 Demo: On Rain Shooter";
-            Kernel.AppVersion = 1;
-            Kernel.WindowWidth = 1280;
-            Kernel.WindowHeight = 720;
-            Kernel.WindowTitle = "GrandWild 0.2 Demo: On Rain Shooter";
+            _Kernel = new GrandWildKernel();
+            _Kernel.AppName = "GrandWild 0.2 Demo: On Rain Shooter";
+            _Kernel.AppVersion = 1;
+            _Kernel.WindowWidth = 1280;
+            _Kernel.WindowHeight = 720;
+            _Kernel.WindowTitle = "GrandWild 0.2 Demo: On Rain Shooter";
 
-            Kernel.OnKeyDown += _OnKeyDownBehavior;
-            Kernel.OnKeyUp += _OnKeyUpBehavior;
+            _Kernel.OnKeyDown += _OnKeyDownBehavior;
+            _Kernel.OnKeyUp += _OnKeyUpBehavior;
 
             Scene = new GameScene();
 
-            Kernel.Launch();
+            _Kernel.Launch();
 
-            Kernel.FocusedScene = Scene;
+            _Kernel.FocusedScene = Scene;
 
-            while (Kernel.IsRunning) ;
+            while (_Kernel.IsRunning) ;
 
             return 0;
         }
@@ -90,6 +99,16 @@ namespace org.flamerat.OnRailShooterDemo {
                 case Forms.Keys.K:
                     Scene.SetWeaponStatus(laser: GameScene.Sign.Neutral);
                     break;
+            }
+        }
+    }
+
+
+    [Serializable]
+    public class KernelNotLaunchedException : Exception {
+        public override string Message {
+            get {
+                return "Accessing kernel failed: kernel not created or not launched";
             }
         }
     }
