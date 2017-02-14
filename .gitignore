@@ -1,9 +1,3 @@
-## GrandWild
-
-# not ignore any resource
-!**/[Rr]esource/**
-!**/[Rr]esources/**
-
 
 
 ## Ignore Visual Studio temporary files, build results, and
@@ -251,3 +245,11 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+
+## GrandWild
+
+# not ignore waveform obj when it's in resource directory
+!*/[Rr]esource/**/*.obj
+!*/[Rr]esources/**/*.obj
+
