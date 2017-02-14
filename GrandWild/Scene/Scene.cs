@@ -287,6 +287,12 @@ namespace org.flamerat.GrandWild.Scene {
         public void StopMainTimer() {
             _MainTimer.Stop();
         }
+        public void SetMainTimerInteval(TimeSpan inteval) {
+            _MainTimer.TargetInteval = inteval;
+        }
+        public void SetMainTimerSpeed(float speedScale) {
+            _MainTimer.SpeedScale = speedScale;
+        }
 
         private Timer _CameraTimer = new Timer(canSkipTick: true, targetInteval: new TimeSpan(0, 0, 0, 0, 10));
         public volatile float TargetWalkSpeedForward=0.0F;
