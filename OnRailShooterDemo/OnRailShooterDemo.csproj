@@ -70,7 +70,7 @@
     <Compile Include="Enemy\Puncher.cs" />
     <Compile Include="GameScene.cs" />
     <Compile Include="IHasHitbox.cs" />
-    <Compile Include="Launcher.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

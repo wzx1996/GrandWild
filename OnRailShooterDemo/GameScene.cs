@@ -8,7 +8,7 @@ using org.flamerat.GrandWild.Scene;
 using org.flamerat.GrandWild.Entity;
 
 namespace org.flamerat.OnRailShooterDemo {
-    class GameScene : Scene, ITimerBased {
+    public class GameScene : Scene, ITimerBased {
         private TimerBasedEntity _Player;
 
         public enum Sign {
