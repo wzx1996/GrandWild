@@ -195,11 +195,11 @@ namespace org.flamerat.GrandWild
         }
 
         private void _KeyUpBehavior(object sender, System.Windows.Forms.KeyEventArgs e) {
-            OnKeyUp(this, e.KeyCode);
+            OnKeyUp?.Invoke(this, e.KeyCode);
         }
 
         private void _KeyDownBehavior(object sender, System.Windows.Forms.KeyEventArgs e) {
-            OnKeyDown(this, e.KeyCode);
+            OnKeyDown?.Invoke(this, e.KeyCode);
         }
 
         public TextureImage DefaultTexture { get; private set; }

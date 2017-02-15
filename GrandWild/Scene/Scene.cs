@@ -178,12 +178,12 @@ namespace org.flamerat.GrandWild.Scene {
         public void MoveTo(vec3 position) {
             var oldPosition = _Camera.Position;
             _Camera.Position = position;
-            OnMove(this, oldPosition, _Camera.Position);
+            OnMove?.Invoke(this, oldPosition, _Camera.Position);
         }
         public void MoveFor(vec3 relativePosition) {
             var oldPosition = _Camera.Position;
             _Camera.Position += relativePosition;
-            OnMove(this, oldPosition, _Camera.Position);
+            OnMove?.Invoke(this, oldPosition, _Camera.Position);
         }
         public void MoveForSelfCoordinate(float right, float up, float forward) {
             var selfMovement = new vec4(right, up, -forward,1);
@@ -204,7 +204,7 @@ namespace org.flamerat.GrandWild.Scene {
             _Camera.XRotation = xr;
             _Camera.YRotation = yr;
             _Camera.ZRotation = zr;
-            OnRotate(this, oldXR, oldYR, oldZR, _Camera.XRotation, _Camera.YRotation, _Camera.ZRotation);
+            OnRotate?.Invoke(this, oldXR, oldYR, oldZR, _Camera.XRotation, _Camera.YRotation, _Camera.ZRotation);
             if (_Camera.XRotation > 180) _Camera.XRotation -= 360;
             if (_Camera.YRotation > 180) _Camera.YRotation -= 360;
             if (_Camera.ZRotation > 180) _Camera.ZRotation -= 360;
@@ -219,7 +219,7 @@ namespace org.flamerat.GrandWild.Scene {
             _Camera.XRotation += xr;
             _Camera.YRotation += yr;
             _Camera.ZRotation += zr;
-            OnRotate(this, oldXR, oldYR, oldZR, _Camera.XRotation, _Camera.YRotation, _Camera.ZRotation);
+            OnRotate?.Invoke(this, oldXR, oldYR, oldZR, _Camera.XRotation, _Camera.YRotation, _Camera.ZRotation);
             if (_Camera.XRotation > 180) _Camera.XRotation -= 360;
             if (_Camera.YRotation > 180) _Camera.YRotation -= 360;
             if (_Camera.ZRotation > 180) _Camera.ZRotation -= 360;
@@ -237,17 +237,17 @@ namespace org.flamerat.GrandWild.Scene {
         public event OnRenderEvent OnGetFocus;
         public event OnRenderEvent OnLoseFocus;
 
-        public void BeforeRenderBehavior() { OnBeforeRender(this); }
-        public void AfterRenderBehavior() { OnAfterRender(this); }
+        public void BeforeRenderBehavior() { OnBeforeRender?.Invoke(this); }
+        public void AfterRenderBehavior() { OnAfterRender?.Invoke(this); }
 
-        public void GetFocusBehavior() { OnGetFocus(this); }
-        public void LoseFocusBehavior() { OnLoseFocus(this); }
+        public void GetFocusBehavior() { OnGetFocus?.Invoke(this); }
+        public void LoseFocusBehavior() { OnLoseFocus?.Invoke(this); }
 
 
         public delegate void OnCreateEvent(Scene sender);
         public event OnCreateEvent OnCreate;
         public Scene() {
-            OnCreate(this);
+            OnCreate?.Invoke(this);
             _Camera.FieldOfView = 85.0F;
             _Camera.Near = 0.1F;
             _Camera.Far = 1000.0F;
@@ -277,7 +277,7 @@ namespace org.flamerat.GrandWild.Scene {
         public delegate void OnDestroyEvent(Scene sender);
         public event OnDestroyEvent OnDestroy;
         ~Scene() {
-            OnDestroy(this);
+            OnDestroy?.Invoke(this);
         }
 
         private Timer _MainTimer = new Timer(canSkipTick: true, targetInteval: new TimeSpan(0, 0, 0, 0, 50));

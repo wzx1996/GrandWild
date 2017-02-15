@@ -10,7 +10,7 @@ namespace org.flamerat.GrandWild.Entity {
 
         public event Timer.OnTimeTickEvent OnTimeTick;
         public void TimeTickBehavior(Timer timer) {
-            OnTimeTick(timer);
+            OnTimeTick?.Invoke(timer);
         }
     }
 }
