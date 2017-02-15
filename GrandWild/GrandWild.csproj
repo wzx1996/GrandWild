@@ -78,6 +78,7 @@
     <Compile Include="CommandBufferPushConstantMvpcMatrixExtension.cs" />
     <Compile Include="Entity\TimerBasedEntity.cs" />
     <Compile Include="Entity\Entity.cs" />
+    <Compile Include="FloatFastInvSqrtExtension.cs" />
     <Compile Include="GpuStoredObjectMemory.cs" />
     <Compile Include="IndexBuffer.cs" />
     <Compile Include="ITimerBased.cs" />

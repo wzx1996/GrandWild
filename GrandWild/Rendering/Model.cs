@@ -9,9 +9,9 @@ using org.flamerat.GrandWild;
 
 namespace org.flamerat.GrandWild.Rendering {
     public class Model:IPart {
-        protected VertexBuffer<GrandWildKernel.Vertex> _VertexBufferObject;
-        protected IndexBuffer _IndexBuffer;
-        protected TextureImage _TextureImage; //TODO implement TextureImage class
+        public VertexBuffer<GrandWildKernel.Vertex> _VertexBufferObject;
+        public IndexBuffer _IndexBuffer;
+        public TextureImage _TextureImage;
         public virtual void Draw(CommandBuffer commandBuffer) {
             Draw(commandBuffer, new mat4(1));
         }
