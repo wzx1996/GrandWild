@@ -7,5 +7,6 @@ using System.Threading.Tasks;
 namespace org.flamerat.OnRailShooterDemo.Enemy {
     [Description("Chaser will chase towards player at it's move speed.", Author = "FlameRat")]
     public class Chaser : Enemy {
+        public Chaser(float hp, float speed) : base(hp, speed) { }
     }
 }

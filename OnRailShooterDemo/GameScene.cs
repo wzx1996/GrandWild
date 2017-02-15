@@ -19,19 +19,35 @@ namespace org.flamerat.OnRailShooterDemo {
         private List<Bullet> _Bullets;
 
         private void _ShootBullet(float power) {
-
+            var newBullet = new Bullet(power);
+            newBullet.MoveTo(_Player.Position);
+            _Bullets.Add(newBullet);
+            AddEntity(newBullet);
         }
 
         private void _SpawnEnemy(Enemy.Enemy enemy) {
-
+            _Enemies.Add(enemy);
+            AddEntity(enemy);
         }
 
         private void _DespawnBullet(Bullet bullet) {
-
+            _Bullets.Remove(bullet);
+            RemoveEntity(bullet);
         }
         
         private void _DespawnEnemy(Enemy.Enemy enemy) {
+            _Enemies.Remove(enemy);
+            RemoveEntity(enemy);
+        }
 
+        private bool _IsEntityOutOfGameArea(Entity entity) {
+            if (entity.Position.x > 1.6) return true;
+            if (entity.Position.x < -1.6) return true;
+            if (entity.Position.y > 2.1) return true;
+            if (entity.Position.y > -0.1) return true;
+            if (entity.Position.z > -0.1) return true;
+            if (entity.Position.z > 3.1) return true;
+            return false;
         }
 
         public enum Sign {
@@ -40,10 +56,13 @@ namespace org.flamerat.OnRailShooterDemo {
             Negative=-1
         }
         public void SetPlayerMoveStatus(Sign? right=null,Sign? up=null,Sign? forward = null) {
-
+            if (right.HasValue) _PlayerMoveStateRight = right.Value;
+            if (up.HasValue) _PlayerMoveStateUp = up.Value;
+            if (forward.HasValue) _PlayerMoveStateForward = forward.Value;
         }
         public void SetWeaponStatus(Sign? bullet=null,Sign? laser=null) {
-
+            if (bullet.HasValue) _WeaponStateBullet = bullet.Value;
+            if (laser.HasValue) _WeaponStateLaser = laser.Value;
         }
         private Sign _PlayerMoveStateRight=Sign.Neutral;
         private Sign _PlayerMoveStateUp = Sign.Neutral;
@@ -54,6 +73,12 @@ namespace org.flamerat.OnRailShooterDemo {
 
         private float _PlayerMoveSpeed = 3.0F;
         private float _BulletInteval = 0.5F;
+
+        private float _EnemySpawnInteval = 2.0F;
+        private float _EnemySpawnCooldown = 0.0F;
+        private float _ChaserRate = 0.05F;
+        private float _EnemySpeed = 0.2F;
+        private float _EnemyHP = 10.0F;
 
         public GameScene() {
             OnGetFocus += _GotFocus;
@@ -67,6 +92,8 @@ namespace org.flamerat.OnRailShooterDemo {
                 StartMainTimer();
             }
         }
+
+        private Random _Randomizer = new Random();
 
         public void TimeTickBehavior(Timer timer) {
             ElapsedTime = timer.CurrentTimeFromStart;
@@ -147,12 +174,26 @@ namespace org.flamerat.OnRailShooterDemo {
             #endregion
 
             #region Player death handling
-            //TODO player death handling
-
+            foreach(var enemy in _Enemies) {
+                if (enemy.TestIfHit(_Player)) {
+                    StopMainTimer();
+                    IsPlayerAlive = false;
+                    break;
+                }
+            }
             #endregion
 
             #region Enemy spawning
             //TODO Enemy spawning
+            _EnemySpawnCooldown += timeInteval;
+            if (_EnemySpawnCooldown > _EnemySpawnInteval) {
+                _EnemySpawnCooldown -= _EnemySpawnInteval;
+                if (_Randomizer.NextDouble() < _ChaserRate) {
+                    _SpawnEnemy(new Enemy.Chaser(_EnemyHP, _EnemySpeed));
+                }else {
+                    _SpawnEnemy(new Enemy.Puncher(_EnemyHP, _EnemySpeed));
+                }
+            }
 
             #endregion
 

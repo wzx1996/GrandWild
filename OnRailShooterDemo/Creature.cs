@@ -25,6 +25,11 @@ namespace org.flamerat.OnRailShooterDemo {
             set { if (value >= 0) _MoveSpeed = value; }
         }
 
+        public Creature(float hp=100.0F,float moveSpeed = 0.0F) {
+            HitPoint = hp;
+            MoveSpeed = moveSpeed;
+        }
+
         private float _HitboxWidth = 0.0F;
 
         public bool TestIfHit(Entity hitSource) {
