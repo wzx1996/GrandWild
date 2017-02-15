@@ -30,14 +30,14 @@ namespace org.flamerat.OnRailShooterDemo {
             MoveSpeed = moveSpeed;
         }
 
-        private float _HitboxWidth = 0.0F;
+        public float HitboxWidth = 0.0F;
 
         public bool TestIfHit(Entity hitSource) {
             return TestIfHit(hitSource.Position);
         }
 
         public bool TestIfHit(vec3 hitSourcePos) {
-            var hitboxHalfWidth = _HitboxWidth / 2;
+            var hitboxHalfWidth = HitboxWidth / 2;
             if (Math.Abs(this.Position.x - hitSourcePos.x) <= hitboxHalfWidth) return true;
             if (Math.Abs(this.Position.y - hitSourcePos.y) <= hitboxHalfWidth) return true;
             if (Math.Abs(this.Position.z - hitSourcePos.z) <= hitboxHalfWidth) return true;

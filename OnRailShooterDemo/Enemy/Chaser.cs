@@ -10,6 +10,15 @@ namespace org.flamerat.OnRailShooterDemo.Enemy {
     public class Chaser : Enemy {
         public Chaser(float hp, float speed) : base(hp, speed) {
             OnTimeTick += _OnTimeTick;
+            HitboxWidth = 0.4F;
+            while (Program.Kernel == null) ;
+            SubParts = new SubPart[1] {
+                new SubPart {
+                    Part=Program.Models["Chaser"],
+                    Scale=new GlmNet.vec3(0.4F,0.4F,0.4F),
+                    Visible=true
+                }
+            };
         }
 
         private void _OnTimeTick(GrandWild.Timer timer) {

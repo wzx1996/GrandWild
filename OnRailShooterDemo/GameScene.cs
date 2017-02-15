@@ -19,7 +19,7 @@ namespace org.flamerat.OnRailShooterDemo {
         public List<Bullet> Bullets { get; private set; }
 
         private void _ShootBullet(float power) {
-            var newBullet = new Bullet(power);
+            var newBullet = new Bullet(power,BulletSpeed);
             newBullet.MoveTo(Player.Position);
             Bullets.Add(newBullet);
             AddEntity(newBullet);
@@ -74,6 +74,7 @@ namespace org.flamerat.OnRailShooterDemo {
 
         private float _PlayerMoveSpeed = 3.0F;
         private float _BulletInteval = 0.5F;
+        public float BulletSpeed { get; private set; } = 1.5F;
 
         private float _EnemySpawnInteval = 2.0F;
         private float _EnemySpawnCooldown = 0.0F;
