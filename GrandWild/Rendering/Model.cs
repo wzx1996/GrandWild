@@ -9,9 +9,9 @@ using org.flamerat.GrandWild;
 
 namespace org.flamerat.GrandWild.Rendering {
     public class Model:IPart {
-        public VertexBuffer<GrandWildKernel.Vertex> _VertexBufferObject;
-        public IndexBuffer _IndexBuffer;
-        public TextureImage _TextureImage;
+        public VertexBuffer<GrandWildKernel.Vertex> VertexBuffer;
+        public IndexBuffer IndexBuffer;
+        public TextureImage TextureImage;
         public virtual void Draw(CommandBuffer commandBuffer) {
             Draw(commandBuffer, new mat4(1));
         }
@@ -20,24 +20,24 @@ namespace org.flamerat.GrandWild.Rendering {
             
 
             commandBuffer.CmdSetModelMatrixGw(parentModelMatrix);
-            commandBuffer.CmdSelectTextureIamgeGw(_TextureImage);
-            commandBuffer.CmdBindVertexBuffer(0, _VertexBufferObject.Buffer, 0);
-            commandBuffer.CmdBindIndexBuffer(_IndexBuffer, 0, IndexType.Uint16);
-            commandBuffer.CmdDrawIndexed(_IndexBuffer.Size, 1, 0, 0, 0);
+            commandBuffer.CmdSelectTextureIamgeGw(TextureImage);
+            commandBuffer.CmdBindVertexBuffer(0, VertexBuffer.Buffer, 0);
+            commandBuffer.CmdBindIndexBuffer(IndexBuffer, 0, IndexType.Uint16);
+            commandBuffer.CmdDrawIndexed(IndexBuffer.Size, 1, 0, 0, 0);
             
         }
 
 
         IEnumerable<IGpuBuffer> IRenderable.GetVertexBuffers() {
-            yield return _VertexBufferObject;
+            yield return VertexBuffer;
         }
 
         IEnumerable<IGpuBuffer> IRenderable.GetIndexBuffers() {
-            yield return _IndexBuffer;
+            yield return IndexBuffer;
         }
 
         IEnumerable<IGpuImage> IRenderable.GetTextureImages() {
-            yield return _TextureImage;
+            yield return TextureImage;
         }
     }
 }
