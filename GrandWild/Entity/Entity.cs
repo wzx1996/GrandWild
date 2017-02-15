@@ -14,12 +14,12 @@ namespace org.flamerat.GrandWild.Entity {
         public void MoveTo(vec3 position) {
             var oldPosition = Position;
             Position = position;
-            OnMove(this,oldPosition,Position);
+            OnMove?.Invoke(this,oldPosition,Position);
         }
         public void MoveFor(vec3 relativePosition) {
             var oldPosition = Position;
             Position += relativePosition;
-            OnMove(this, oldPosition, Position);
+            OnMove?.Invoke(this, oldPosition, Position);
         }
         public void MoveForSelfCoordinate(float forward,float right,float up) {
             var selfMovement = new vec4(right, up, -forward, 1);
@@ -40,7 +40,7 @@ namespace org.flamerat.GrandWild.Entity {
             XRotation = xr;
             YRotation = yr;
             ZRotation = zr;
-            OnRotate(this, oldXR, oldYR, oldZR, XRotation, YRotation, ZRotation);
+            OnRotate?.Invoke(this, oldXR, oldYR, oldZR, XRotation, YRotation, ZRotation);
             if (XRotation > 180) XRotation -= 360;
             if (YRotation > 180) YRotation -= 360;
             if (ZRotation > 180) ZRotation -= 360;
@@ -55,7 +55,7 @@ namespace org.flamerat.GrandWild.Entity {
             XRotation += xr;
             YRotation += yr;
             ZRotation += zr;
-            OnRotate(this, oldXR, oldYR, oldZR, XRotation, YRotation, ZRotation);
+            OnRotate?.Invoke(this, oldXR, oldYR, oldZR, XRotation, YRotation, ZRotation);
             if(XRotation > 180) XRotation -= 360;
             if (YRotation > 180) YRotation -= 360;
             if (ZRotation > 180) ZRotation -= 360;
@@ -72,23 +72,23 @@ namespace org.flamerat.GrandWild.Entity {
         public event OnDrawEvent OnAfterDraw;
 
         public override void Draw(CommandBuffer commandBuffer) {
-            OnBeforeDraw(this);
+            OnBeforeDraw?.Invoke(this);
             Draw(commandBuffer,_ModelMatrix);
-            OnAfterDraw(this);
+            OnAfterDraw?.Invoke(this);
         }
 
 
         public delegate void OnCreateEvent(Entity sender);
         public event OnCreateEvent OnCreate;
         public Entity() {
-            OnCreate(this);
+            OnCreate?.Invoke(this);
         }
 
 
         public delegate void OnDestroyEvent(Entity sender);
         public event OnDestroyEvent OnDestroy;
         ~Entity() {
-            OnDestroy(this);
+            OnDestroy?.Invoke(this);
         }
 
         public vec3 Position { get; private set; }
