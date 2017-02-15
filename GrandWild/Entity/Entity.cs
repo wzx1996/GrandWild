@@ -42,11 +42,11 @@ namespace org.flamerat.GrandWild.Entity {
             ZRotation = zr;
             OnRotate(this, oldXR, oldYR, oldZR, XRotation, YRotation, ZRotation);
             if (XRotation > 180) XRotation -= 360;
-            if (XRotation > 180) YRotation -= 360;
-            if (XRotation > 180) ZRotation -= 360;
+            if (YRotation > 180) YRotation -= 360;
+            if (ZRotation > 180) ZRotation -= 360;
             if (XRotation < -180) XRotation += 360;
-            if (XRotation < -180) YRotation += 360;
-            if (XRotation < -180) ZRotation += 360;
+            if (YRotation < -180) YRotation += 360;
+            if (ZRotation < -180) ZRotation += 360;
         }
         public void RotateFor(float xr,float yr,float zr) {
             var oldXR = XRotation;
@@ -57,11 +57,11 @@ namespace org.flamerat.GrandWild.Entity {
             ZRotation += zr;
             OnRotate(this, oldXR, oldYR, oldZR, XRotation, YRotation, ZRotation);
             if(XRotation > 180) XRotation -= 360;
-            if (XRotation > 180) YRotation -= 360;
-            if (XRotation > 180) ZRotation -= 360;
+            if (YRotation > 180) YRotation -= 360;
+            if (ZRotation > 180) ZRotation -= 360;
             if (XRotation < -180) XRotation += 360;
-            if (XRotation < -180) YRotation += 360;
-            if (XRotation < -180) ZRotation += 360;
+            if (YRotation < -180) YRotation += 360;
+            if (ZRotation < -180) ZRotation += 360;
         }
         public void RotateForSelfCoordinate(float pan,float pitch,float tilt) {
             throw new NotImplementedException();
