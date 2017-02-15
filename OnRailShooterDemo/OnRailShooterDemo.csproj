@@ -61,6 +61,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="Vulkan, Version=0.0.6128.32742, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VulkanSharp.0.1.7\lib\net452\Vulkan.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Vulkan.Windows, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VulkanSharp.0.1.7\lib\net452\Vulkan.Windows.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bullet.cs" />

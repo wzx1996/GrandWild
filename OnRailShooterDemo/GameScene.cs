@@ -14,29 +14,30 @@ namespace org.flamerat.OnRailShooterDemo {
         public bool IsPlayerAlive { get; private set; } = true;
         public bool IsPlayerInvincible = false;
 
-        private Player _Player;
-        private List<Enemy.Enemy> _Enemies;
-        private List<Bullet> _Bullets;
+        public Player Player { get; private set; }
+        public List<Enemy.Enemy> Enemies { get; private set; }
+        public List<Bullet> Bullets { get; private set; }
 
         private void _ShootBullet(float power) {
             var newBullet = new Bullet(power);
-            newBullet.MoveTo(_Player.Position);
-            _Bullets.Add(newBullet);
+            newBullet.MoveTo(Player.Position);
+            Bullets.Add(newBullet);
             AddEntity(newBullet);
         }
 
         private void _SpawnEnemy(Enemy.Enemy enemy) {
-            _Enemies.Add(enemy);
+            Enemies.Add(enemy);
+            enemy.MoveTo(new GlmNet.vec3((float)_Randomizer.NextDouble() * 3.0F - 1.5F, (float)_Randomizer.NextDouble() * 2.0F, -3));
             AddEntity(enemy);
         }
 
         private void _DespawnBullet(Bullet bullet) {
-            _Bullets.Remove(bullet);
+            Bullets.Remove(bullet);
             RemoveEntity(bullet);
         }
         
         private void _DespawnEnemy(Enemy.Enemy enemy) {
-            _Enemies.Remove(enemy);
+            Enemies.Remove(enemy);
             RemoveEntity(enemy);
         }
 
@@ -45,7 +46,7 @@ namespace org.flamerat.OnRailShooterDemo {
             if (entity.Position.x < -1.6) return true;
             if (entity.Position.y > 2.1) return true;
             if (entity.Position.y > -0.1) return true;
-            if (entity.Position.z > -0.1) return true;
+            if (entity.Position.z > -1.1) return true;
             if (entity.Position.z > 3.1) return true;
             return false;
         }
@@ -82,6 +83,8 @@ namespace org.flamerat.OnRailShooterDemo {
 
         public GameScene() {
             OnGetFocus += _GotFocus;
+            MoveTo(new GlmNet.vec3(0, 1, -1));
+            RotateTo(0, 0, 0);
         }
 
         private bool _Started = false;
@@ -102,27 +105,27 @@ namespace org.flamerat.OnRailShooterDemo {
             #region State machines
             switch (_PlayerMoveStateForward) {
                 case Sign.Positive:
-                    if (_Player.Position.z > -3) {
-                        _Player.MoveFor(new GlmNet.vec3(0, 0, -_PlayerMoveSpeed / timeInteval));
+                    if (Player.Position.z > -3) {
+                        Player.MoveFor(new GlmNet.vec3(0, 0, -_PlayerMoveSpeed / timeInteval));
                     }
                     break;
                 case Sign.Negative:
-                    if (_Player.Position.z < 0) {
-                        _Player.MoveFor(new GlmNet.vec3(0, 0, _PlayerMoveSpeed / timeInteval));
+                    if (Player.Position.z < 0) {
+                        Player.MoveFor(new GlmNet.vec3(0, 0, _PlayerMoveSpeed / timeInteval));
                     }
                     break;
             }
 
             switch (_PlayerMoveStateRight) {
                 case Sign.Positive:
-                    if (_Player.Position.x < 1.5) {
-                        _Player.MoveFor(new GlmNet.vec3(_PlayerMoveSpeed / timeInteval, 0, 0));
+                    if (Player.Position.x < 1.5) {
+                        Player.MoveFor(new GlmNet.vec3(_PlayerMoveSpeed / timeInteval, 0, 0));
                         MoveFor(new GlmNet.vec3(_PlayerMoveSpeed / (timeInteval * 2), 0, 0));
                     }
                     break;
                 case Sign.Negative:
-                    if (_Player.Position.x > -1.5) {
-                        _Player.MoveFor(new GlmNet.vec3(-_PlayerMoveSpeed / timeInteval, 0, 0));
+                    if (Player.Position.x > -1.5) {
+                        Player.MoveFor(new GlmNet.vec3(-_PlayerMoveSpeed / timeInteval, 0, 0));
                         MoveFor(new GlmNet.vec3(-_PlayerMoveSpeed / (timeInteval * 2), 0, 0));
                     }
                     break;
@@ -130,15 +133,13 @@ namespace org.flamerat.OnRailShooterDemo {
 
             switch (_PlayerMoveStateUp) {
                 case Sign.Positive:
-                    if (_Player.Position.y < 2) {
-                        _Player.MoveFor(new GlmNet.vec3(0,_PlayerMoveSpeed / timeInteval, 0));
-                        MoveFor(new GlmNet.vec3(0,_PlayerMoveSpeed / (timeInteval * 2), 0));
+                    if (Player.Position.y < 2) {
+                        Player.MoveFor(new GlmNet.vec3(0,_PlayerMoveSpeed / timeInteval, 0));
                     }
                     break;
                 case Sign.Negative:
-                    if (_Player.Position.y > 0) {
-                        _Player.MoveFor(new GlmNet.vec3(0,-_PlayerMoveSpeed / timeInteval, 0));
-                        MoveFor(new GlmNet.vec3(0,-_PlayerMoveSpeed / (timeInteval * 2), 0));
+                    if (Player.Position.y > 0) {
+                        Player.MoveFor(new GlmNet.vec3(0,-_PlayerMoveSpeed / timeInteval, 0));
                     }
                     break;
             }
@@ -157,9 +158,9 @@ namespace org.flamerat.OnRailShooterDemo {
                 case Sign.Positive:
                     _PlayerMoveSpeed = 1.5F;
                     _BulletInteval = 1.0F;
-                    foreach(var enemy in _Enemies) {
-                        if (enemy.Position.z < _Player.Position.z) {
-                            if (enemy.TestIfHit(new GlmNet.vec3(_Player.Position.x, _Player.Position.y, enemy.Position.z))) {
+                    foreach(var enemy in Enemies) {
+                        if (enemy.Position.z < Player.Position.z) {
+                            if (enemy.TestIfHit(new GlmNet.vec3(Player.Position.x, Player.Position.y, enemy.Position.z))) {
                                 enemy.TakeDamage(10.0F / timeInteval);
                             }
                         }
@@ -174,8 +175,8 @@ namespace org.flamerat.OnRailShooterDemo {
             #endregion
 
             #region Player death handling
-            foreach(var enemy in _Enemies) {
-                if (enemy.TestIfHit(_Player)) {
+            foreach(var enemy in Enemies) {
+                if (enemy.TestIfHit(Player)) {
                     StopMainTimer();
                     IsPlayerAlive = false;
                     break;
@@ -184,7 +185,6 @@ namespace org.flamerat.OnRailShooterDemo {
             #endregion
 
             #region Enemy spawning
-            //TODO Enemy spawning
             _EnemySpawnCooldown += timeInteval;
             if (_EnemySpawnCooldown > _EnemySpawnInteval) {
                 _EnemySpawnCooldown -= _EnemySpawnInteval;
@@ -198,8 +198,12 @@ namespace org.flamerat.OnRailShooterDemo {
             #endregion
 
             #region Dead/out-of-game-area enemy/bullet despawning
-            //TODO Dead/out-of-game-area enemy/bullet despawning
-
+            foreach(var bullet in Bullets) {
+                if (bullet.IsDestroyed || _IsEntityOutOfGameArea(bullet)) _DespawnBullet(bullet);
+            }
+            foreach(var enemy in Enemies) {
+                if (enemy.IsDead() || _IsEntityOutOfGameArea(enemy)) _DespawnEnemy(enemy); 
+            }
             #endregion
         }
     }

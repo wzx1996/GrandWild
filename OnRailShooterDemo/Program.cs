@@ -20,6 +20,11 @@ namespace org.flamerat.OnRailShooterDemo {
         private static GrandWildKernel _Kernel = null;
         public static GameScene Scene { get; private set; }
 
+        public static Dictionary<string, GrandWild.VertexBuffer<GrandWild.GrandWildKernel.Vertex>> VertexBuffers;
+        public static Dictionary<string, IndexBuffer> IndexBuffers;
+        public static Dictionary<string, TextureImage> Textures;
+        public static Dictionary<string, GrandWild.Rendering.Model> Models;
+
         public static int Main(string[] args) {
             _Kernel = new GrandWildKernel();
             _Kernel.AppName = "GrandWild 0.2 Demo: On Rain Shooter";
@@ -34,6 +39,41 @@ namespace org.flamerat.OnRailShooterDemo {
             Scene = new GameScene();
 
             _Kernel.Launch();
+
+            var objFile = new GrandWild.Resource.WaveformObj(@"Resource\dart.obj");
+            VertexBuffers.Add("Chaser",new VertexBuffer<GrandWild.GrandWildKernel.Vertex>(Kernel.Device, objFile.Vertexes));
+            IndexBuffers.Add("Chaser", new IndexBuffer(Kernel.Device, objFile.Indexes));
+
+            objFile = new GrandWild.Resource.WaveformObj(@"Resource\pony.obj");
+            VertexBuffers.Add("Player", new VertexBuffer<GrandWildKernel.Vertex>(Kernel.Device, objFile.Vertexes));
+            IndexBuffers.Add("Player", new IndexBuffer(Kernel.Device, objFile.Indexes));
+
+            objFile = new GrandWild.Resource.WaveformObj(@"Resource\puzzle_cube.obj");
+            VertexBuffers.Add("Puncher", new VertexBuffer<GrandWildKernel.Vertex>(Kernel.Device, objFile.Vertexes));
+            IndexBuffers.Add("Puncher", new IndexBuffer(Kernel.Device, objFile.Indexes));
+            objFile.SetColor(new GlmNet.vec4(1, 1, 1, 1));
+            VertexBuffers.Add("Bullet", new VertexBuffer<GrandWildKernel.Vertex>(Kernel.Device, objFile.Vertexes));
+            IndexBuffers.Add("Bullet", new IndexBuffer(Kernel.Device, objFile.Indexes));
+            objFile.SetColor(new GlmNet.vec4(1, 0.2F, 0.2F, 1));
+            VertexBuffers.Add("Laser", new VertexBuffer<GrandWildKernel.Vertex>(Kernel.Device, objFile.Vertexes));
+            IndexBuffers.Add("Laser", new IndexBuffer(Kernel.Device, objFile.Indexes));
+
+            var textureFile = new GrandWild.Resource.Image(@"Resource\dart.PNG");
+            Textures.Add("Chaser", new TextureImage(Kernel.Device, textureFile.Data));
+
+            textureFile = new GrandWild.Resource.Image(@"Resource\pony.PNG");
+            Textures.Add("Chaser", new TextureImage(Kernel.Device, textureFile.Data));
+
+            textureFile = new GrandWild.Resource.Image(@"Resource\puzzle_cube.PNG");
+            Textures.Add("Chaser", new TextureImage(Kernel.Device, textureFile.Data));
+
+            Models.Add("Chaser", new GrandWild.Rendering.Model());
+            Models.Add("Player", new GrandWild.Rendering.Model());
+            Models.Add("Puncher", new GrandWild.Rendering.Model());
+            Models.Add("Bullet", new GrandWild.Rendering.Model());
+            Models.Add("Laser", new GrandWild.Rendering.Model());
+
+            Models["Chaser"]
 
             _Kernel.FocusedScene = Scene;
 
