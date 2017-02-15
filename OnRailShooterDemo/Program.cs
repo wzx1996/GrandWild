@@ -67,7 +67,7 @@ namespace org.flamerat.OnRailShooterDemo {
             textureFile = new GrandWild.Resource.Image(@"Resource\puzzle_cube.PNG");
             Textures.Add("Chaser", new TextureImage(Kernel.Device, textureFile.Data));
 
-            Models.Add("Chaser", new GrandWild.Rendering.Model());
+            Models.Add("Chaser", new GrandWild.Rendering.Model {_VertexBufferObject=VertexBuffers["Chaser"],_IndexBuffer=IndexBuffers["Chaser"],_TextureImage=Textures["Chaser"] });
             Models.Add("Player", new GrandWild.Rendering.Model());
             Models.Add("Puncher", new GrandWild.Rendering.Model());
             Models.Add("Bullet", new GrandWild.Rendering.Model());
