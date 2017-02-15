@@ -206,11 +206,11 @@ namespace org.flamerat.GrandWild.Scene {
             _Camera.ZRotation = zr;
             OnRotate(this, oldXR, oldYR, oldZR, _Camera.XRotation, _Camera.YRotation, _Camera.ZRotation);
             if (_Camera.XRotation > 180) _Camera.XRotation -= 360;
-            if (_Camera.XRotation > 180) _Camera.YRotation -= 360;
-            if (_Camera.XRotation > 180) _Camera.ZRotation -= 360;
+            if (_Camera.YRotation > 180) _Camera.YRotation -= 360;
+            if (_Camera.ZRotation > 180) _Camera.ZRotation -= 360;
             if (_Camera.XRotation < -180) _Camera.XRotation += 360;
-            if (_Camera.XRotation < -180) _Camera.YRotation += 360;
-            if (_Camera.XRotation < -180) _Camera.ZRotation += 360;
+            if (_Camera.YRotation < -180) _Camera.YRotation += 360;
+            if (_Camera.ZRotation < -180) _Camera.ZRotation += 360;
         }
         public void RotateFor(float xr, float yr, float zr) {
             var oldXR = _Camera.XRotation;
@@ -221,11 +221,11 @@ namespace org.flamerat.GrandWild.Scene {
             _Camera.ZRotation += zr;
             OnRotate(this, oldXR, oldYR, oldZR, _Camera.XRotation, _Camera.YRotation, _Camera.ZRotation);
             if (_Camera.XRotation > 180) _Camera.XRotation -= 360;
-            if (_Camera.XRotation > 180) _Camera.YRotation -= 360;
-            if (_Camera.XRotation > 180) _Camera.ZRotation -= 360;
+            if (_Camera.YRotation > 180) _Camera.YRotation -= 360;
+            if (_Camera.ZRotation > 180) _Camera.ZRotation -= 360;
             if (_Camera.XRotation < -180) _Camera.XRotation += 360;
-            if (_Camera.XRotation < -180) _Camera.YRotation += 360;
-            if (_Camera.XRotation < -180) _Camera.ZRotation += 360;
+            if (_Camera.YRotation < -180) _Camera.YRotation += 360;
+            if (_Camera.ZRotation < -180) _Camera.ZRotation += 360;
         }
         public void RotateForSelfCoordinate(float pan, float pitch, float tilt) {
             throw new NotImplementedException();
