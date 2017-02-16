@@ -12,7 +12,7 @@ namespace org.flamerat.OnRailShooterDemo {
             Damage = power;
             Speed = speed;
             OnTimeTick += _OnTimeTick;
-            while (Program.Kernel == null) ;
+            while (Program.Kernel == null) System.Threading.Thread.Sleep(1000) ;
             SubParts = new SubPart[1] {
                 new SubPart {
                     Part=Program.Models["Bullet"],

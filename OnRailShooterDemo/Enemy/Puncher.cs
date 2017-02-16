@@ -11,7 +11,7 @@ namespace org.flamerat.OnRailShooterDemo.Enemy {
             OnTimeTick += _OnTimeTick;
             RotateFor(pitch, pan, 0);
             HitboxWidth = 0.4F;
-            while (Program.Kernel == null) ;
+            while (Program.Kernel == null) System.Threading.Thread.Sleep(1000);
             SubParts = new SubPart[1] {
                 new SubPart {
                     Part=Program.Models["Puncher"],

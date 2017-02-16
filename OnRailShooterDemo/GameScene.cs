@@ -14,9 +14,9 @@ namespace org.flamerat.OnRailShooterDemo {
         public bool IsPlayerAlive { get; private set; } = true;
         public bool IsPlayerInvincible = false;
 
-        public Player Player { get; private set; }
-        public List<Enemy.Enemy> Enemies { get; private set; }
-        public List<Bullet> Bullets { get; private set; }
+        public Player Player { get; private set; } = new Player();
+        public List<Enemy.Enemy> Enemies { get; private set; } = new List<Enemy.Enemy>();
+        public List<Bullet> Bullets { get; private set; } = new List<Bullet>();
 
         private void _ShootBullet(float power) {
             var newBullet = new Bullet(power,BulletSpeed);
@@ -157,6 +157,7 @@ namespace org.flamerat.OnRailShooterDemo {
 
             switch (_WeaponStateLaser) {
                 case Sign.Positive:
+                    Player.SubParts[1].Visible = true;
                     _PlayerMoveSpeed = 1.5F;
                     _BulletInteval = 1.0F;
                     foreach(var enemy in Enemies) {
@@ -169,6 +170,7 @@ namespace org.flamerat.OnRailShooterDemo {
                     break;
                 case Sign.Neutral:
                 case Sign.Negative:
+                    Player.SubParts[1].Visible = false;
                     _PlayerMoveSpeed = 3.0F;
                     _BulletInteval = 1.0F;
                     break;
@@ -199,10 +201,10 @@ namespace org.flamerat.OnRailShooterDemo {
             #endregion
 
             #region Dead/out-of-game-area enemy/bullet despawning
-            foreach(var bullet in Bullets) {
+            foreach(var bullet in Bullets.ToArray()) {
                 if (bullet.IsDestroyed || _IsEntityOutOfGameArea(bullet)) _DespawnBullet(bullet);
             }
-            foreach(var enemy in Enemies) {
+            foreach(var enemy in Enemies.ToArray()) {
                 if (enemy.IsDead() || _IsEntityOutOfGameArea(enemy)) _DespawnEnemy(enemy); 
             }
             #endregion

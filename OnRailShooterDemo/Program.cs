@@ -10,20 +10,21 @@ namespace org.flamerat.OnRailShooterDemo {
     public static class Program {
         public static GrandWildKernel Kernel {
             get {
-                if (_Kernel == null || !_Kernel.IsRunning) {
-                    throw new KernelNotLaunchedException();
+                if (_Kernel == null || (!_Kernel.IsRunning)) {
+                    return null;
                 }else {
                     return _Kernel;
                 }
             }
         }
         private static GrandWildKernel _Kernel = null;
+
         public static GameScene Scene { get; private set; }
 
-        public static Dictionary<string, GrandWild.VertexBuffer<GrandWild.GrandWildKernel.Vertex>> VertexBuffers;
-        public static Dictionary<string, IndexBuffer> IndexBuffers;
-        public static Dictionary<string, TextureImage> Textures;
-        public static Dictionary<string, GrandWild.Rendering.Model> Models;
+        public static Dictionary<string, GrandWild.VertexBuffer<GrandWild.GrandWildKernel.Vertex>> VertexBuffers=new Dictionary<string, VertexBuffer<GrandWildKernel.Vertex>>();
+        public static Dictionary<string, IndexBuffer> IndexBuffers=new Dictionary<string, IndexBuffer>();
+        public static Dictionary<string, TextureImage> Textures=new Dictionary<string, TextureImage>();
+        public static Dictionary<string, GrandWild.Rendering.Model> Models=new Dictionary<string, GrandWild.Rendering.Model>();
 
         public static int Main(string[] args) {
             _Kernel = new GrandWildKernel();
@@ -36,9 +37,8 @@ namespace org.flamerat.OnRailShooterDemo {
             _Kernel.OnKeyDown += _OnKeyDownBehavior;
             _Kernel.OnKeyUp += _OnKeyUpBehavior;
 
-            Scene = new GameScene();
-
             _Kernel.Launch();
+
 
             {
                 var objFile = new GrandWild.Resource.WaveformObj(@"Resource\dart.obj");
@@ -63,14 +63,16 @@ namespace org.flamerat.OnRailShooterDemo {
                 Textures.Add("Chaser", new TextureImage(Kernel.Device, textureFile.Data));
 
                 textureFile = new GrandWild.Resource.Image(@"Resource\pony.PNG");
-                Textures.Add("Chaser", new TextureImage(Kernel.Device, textureFile.Data));
+                Textures.Add("Player", new TextureImage(Kernel.Device, textureFile.Data));
 
                 textureFile = new GrandWild.Resource.Image(@"Resource\puzzle_cube.PNG");
-                Textures.Add("Chaser", new TextureImage(Kernel.Device, textureFile.Data));
+                Textures.Add("Puncher", new TextureImage(Kernel.Device, textureFile.Data));
+                Textures.Add("Bullet", new TextureImage(Kernel.Device, textureFile.Data));
+                Textures.Add("Laser", new TextureImage(Kernel.Device, textureFile.Data));
             }
 
-            foreach(var name in new string[] { "Chaser", "Player", "Puncher", "Bullet", "Laser" }) {
-                Models.Add(name, 
+            foreach (var name in new string[] { "Chaser", "Player", "Puncher", "Bullet", "Laser" }) {
+                Models.Add(name,
                     new GrandWild.Rendering.Model {
                         VertexBuffer = VertexBuffers[name],
                         IndexBuffer = IndexBuffers[name],
@@ -79,13 +81,15 @@ namespace org.flamerat.OnRailShooterDemo {
                 );
             }
 
+            Scene = new GameScene();
+            Scene.RequiredRenderables = Models.Values.ToArray();
+            Scene.SendRequiredGpuObjectToGpu(Kernel.PhysicalDevice,Kernel.Device);
             _Kernel.FocusedScene = Scene;
 
-            while (_Kernel.IsRunning) ;
+            while (_Kernel.IsRunning) System.Threading.Thread.Sleep(2000);
 
             return 0;
         }
-
 
 
         private static void _OnKeyDownBehavior(GrandWildKernel sender, System.Windows.Forms.Keys key) {
