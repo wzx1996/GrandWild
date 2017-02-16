@@ -26,7 +26,10 @@ namespace org.flamerat.GrandWild {
         public TextureImage(Device device, byte[,,/* 4 */] data, bool optimalTiling=false) {
             _Data = data;
             _OptimalTiling = optimalTiling;
+          
             ImageCreateInfo imageInfo = new ImageCreateInfo {
+                ImageType=ImageType.Image2D,
+                Samples=SampleCountFlags.Count1,
                 Extent = new Extent3D {
                     Width = (uint)_Data.GetLength(1),
                     Height = (uint)_Data.GetLength(0),
@@ -38,22 +41,10 @@ namespace org.flamerat.GrandWild {
                 Tiling = (optimalTiling?ImageTiling.Optimal:ImageTiling.Linear),
                 InitialLayout = ImageLayout.Preinitialized,
                 SharingMode = SharingMode.Exclusive,
-                Usage = ImageUsageFlags.TransferSrc,
+                Usage = ImageUsageFlags.Sampled,
             };
             _Image=device.CreateImage(imageInfo);
-            ImageViewCreateInfo imageViewInfo = new ImageViewCreateInfo {
-                Image=_Image,
-                ViewType=ImageViewType.View2D,
-                Format=Format.R8G8B8A8Unorm,
-                SubresourceRange=new ImageSubresourceRange {
-                    AspectMask=ImageAspectFlags.Color,
-                    BaseMipLevel=0,
-                    LevelCount=1,
-                    BaseArrayLayer=0,
-                    LayerCount=1
-                }
-            };
-            _ImageView = device.CreateImageView(imageViewInfo);
+
         }
 
         public void SendToGpu(Device device, DeviceMemory memory, DeviceSize offset) {
@@ -82,6 +73,26 @@ namespace org.flamerat.GrandWild {
                 memRange.Size = imageSize;
                 device.FlushMappedMemoryRange(memRange);
                 device.UnmapMemory(memory);
+
+                ImageViewCreateInfo imageViewInfo = new ImageViewCreateInfo {
+                    Image = _Image,
+                    ViewType = ImageViewType.View2D,
+                    Components=new ComponentMapping {
+                        R=ComponentSwizzle.R,
+                        G=ComponentSwizzle.G,
+                        B=ComponentSwizzle.B,
+                        A=ComponentSwizzle.A
+                    },
+                    Format = Format.R8G8B8A8Unorm,
+                    SubresourceRange = new ImageSubresourceRange {
+                        AspectMask = ImageAspectFlags.Color,
+                        BaseMipLevel = 0,
+                        LevelCount = 1,
+                        BaseArrayLayer = 0,
+                        LayerCount = 1
+                    }
+                };
+                _ImageView = device.CreateImageView(imageViewInfo);
             }
         }
 

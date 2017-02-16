@@ -15,7 +15,7 @@ namespace org.flamerat.GrandWild {
                 _CurrentIndex = 0;
             }
             public DescriptorSet SetTexture(TextureImage texture) {
-                for(uint i = 0; i <= _CurrentIndex - 1; i++) {
+                for(uint i = 0; i <= _CurrentIndex; i++) {
                     if (texture == _Images[i]) return _Sets[i];
                 }
 
@@ -23,21 +23,34 @@ namespace org.flamerat.GrandWild {
 
                 _Images[_CurrentIndex] = texture;
 
-                _Device.UpdateDescriptorSet(
-                    pDescriptorCopie: null,
-                    pDescriptorWrite: new WriteDescriptorSet {
-                        DescriptorCount = 1,
-                        DescriptorType = DescriptorType.CombinedImageSampler,
-                        DstSet = _Sets[_CurrentIndex],
-                        DstBinding = 0,
-                        DstArrayElement = 0,
-                        ImageInfo = new DescriptorImageInfo[1] {
-                            new DescriptorImageInfo {
-                                ImageLayout=texture.Layout,
-                                ImageView=texture.ImageView,
-                                Sampler=_Samplers[_CurrentIndex]
+                _Device.UpdateDescriptorSets(pDescriptorCopies: null,
+                    pDescriptorWrites: new WriteDescriptorSet[2] {
+                        new WriteDescriptorSet {
+                            DescriptorCount=1,
+                            DescriptorType=DescriptorType.Sampler,
+                            DstSet=_Sets[_CurrentIndex],
+                            DstBinding=0,
+                            DstArrayElement=0,
+                            ImageInfo=new DescriptorImageInfo[1] {
+                                new DescriptorImageInfo {
+                                    Sampler=_Samplers[_CurrentIndex]
+                                }
+                            }
+                        },
+                        new WriteDescriptorSet {
+                            DescriptorCount=1,
+                            DescriptorType=DescriptorType.SampledImage,
+                            DstSet=_Sets[_CurrentIndex],
+                            DstBinding=1,
+                            DstArrayElement=0,
+                            ImageInfo=new DescriptorImageInfo[1] {
+                                new DescriptorImageInfo {
+                                    ImageLayout=texture.Layout,
+                                    ImageView=texture.ImageView
+                                }
                             }
                         }
+
                     });
 
                 _CurrentIndex++;
@@ -51,10 +64,14 @@ namespace org.flamerat.GrandWild {
                 var poolInfo = new DescriptorPoolCreateInfo() {
                     MaxSets = _Size,
                     PoolSizeCount = 1,
-                    PoolSizes = new DescriptorPoolSize[1] {
+                    PoolSizes = new DescriptorPoolSize[2] {
                         new DescriptorPoolSize {
-                            DescriptorCount=1,
-                            Type=DescriptorType.CombinedImageSampler
+                            DescriptorCount=_Size,
+                            Type=DescriptorType.Sampler
+                        },
+                        new DescriptorPoolSize {
+                            DescriptorCount=_Size,
+                            Type=DescriptorType.SampledImage
                         }
                     }
                 };

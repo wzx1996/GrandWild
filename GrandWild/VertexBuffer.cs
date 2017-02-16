@@ -37,6 +37,7 @@ namespace org.flamerat.GrandWild {
         public uint Size { get; private set; }
         public T[] Data { get { return _Data; } }
         public VertexBuffer(Device device,T[] data) {
+            _Data = data;
             Size = (uint)data.Length;
             BufferCreateInfo bufferInfo = new BufferCreateInfo {
                 Usage = BufferUsageFlags.VertexBuffer,
@@ -49,7 +50,10 @@ namespace org.flamerat.GrandWild {
             var memReqs = device.GetBufferMemoryRequirements(_VBO);
             var bufferSize = memReqs.Size;
             var pDeviceMemory = device.MapMemory(memory, offset, bufferSize);
-            System.Runtime.InteropServices.Marshal.StructureToPtr(_Data, pDeviceMemory, false);
+            var sizeOfT = System.Runtime.InteropServices.Marshal.SizeOf(typeof(T));
+            for(int i = 0; i <= _Data.Length - 1; i++) {
+                System.Runtime.InteropServices.Marshal.StructureToPtr(_Data[i], pDeviceMemory+i*sizeOfT, false);
+            }
             MappedMemoryRange memRange = new Vulkan.MappedMemoryRange();
             memRange.Memory = memory;
             memRange.Offset = offset;

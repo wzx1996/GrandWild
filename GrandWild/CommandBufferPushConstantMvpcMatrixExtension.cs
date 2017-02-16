@@ -41,16 +41,19 @@ namespace org.flamerat.GrandWild {
         /// <param name="commandBuffer"></param>
         /// <param name="vpc"></param>
         public static void CmdSetVpcMatrixGw(this CommandBuffer commandBuffer,mat4 vpc) {
-            IntPtr pVpc=new IntPtr();
-            Marshal.StructureToPtr(vpc, pVpc, false);
-            commandBuffer.CmdPushConstants(
-                layout: _PipelineLayout[commandBuffer],
-                stageFlags: ShaderStageFlags.Vertex,
-                offset: _VpcMatrixPushOffset[commandBuffer],
-                size: _SizeOfMat4,
-                pValues: pVpc
-            );
-            System.Runtime.InteropServices.Marshal.DestroyStructure(pVpc, typeof(mat4));
+
+            unsafe
+            {
+                fixed (void* pVpc=vpc.to_array()) {
+                    commandBuffer.CmdPushConstants(
+                        layout: _PipelineLayout[commandBuffer],
+                        stageFlags: ShaderStageFlags.Vertex,
+                        offset: _VpcMatrixPushOffset[commandBuffer],
+                        size: _SizeOfMat4,
+                        pValues: new IntPtr(pVpc)
+                    );
+                }
+            }
         }
 
         /// <summary>
@@ -59,16 +62,19 @@ namespace org.flamerat.GrandWild {
         /// <param name="commandBuffer"></param>
         /// <param name="vpc"></param>
         public static void CmdSetModelMatrixGw(this CommandBuffer commandBuffer, mat4 m) {
-            IntPtr pM = new IntPtr();
-            Marshal.StructureToPtr(m, pM, false);
-            commandBuffer.CmdPushConstants(
-                layout: _PipelineLayout[commandBuffer],
-                stageFlags: ShaderStageFlags.Vertex,
-                offset: _ModelMatrixPushOffset[commandBuffer],
-                size: _SizeOfMat4,
-                pValues: pM
-            );
-            Marshal.DestroyStructure(pM, typeof(mat4));
+            unsafe
+            {
+
+                fixed (void* pM = m.to_array()) {
+                    commandBuffer.CmdPushConstants(
+                        layout: _PipelineLayout[commandBuffer],
+                        stageFlags: ShaderStageFlags.Vertex,
+                        offset: _ModelMatrixPushOffset[commandBuffer],
+                        size: _SizeOfMat4,
+                        pValues: new IntPtr(pM)
+                    );
+                }
+            }
         }
     }
 }
