@@ -160,11 +160,10 @@ namespace org.flamerat.GrandWild
                 if (_FocusedScene != null) {
                     _FocusedScene.BelongingKernels.Remove(this);
                     _FocusedScene.LoseFocusBehavior();
-                    _FocusedScene = value;
-                    _FocusedScene.GetFocusBehavior();
-                    _FocusedScene.BelongingKernels.Add(this);
                 }
-                
+                _FocusedScene = value;
+                _FocusedScene.GetFocusBehavior();
+                _FocusedScene.BelongingKernels.Add(this);
             }
         }
 
@@ -189,6 +188,9 @@ namespace org.flamerat.GrandWild
             get { return _Device; }
         }
 
+        public Vulkan.PhysicalDevice PhysicalDevice {
+            get { return _PhysicalDevice; }
+        }
 
         private void _WindowClosedBehavior(object sender, System.Windows.Forms.FormClosedEventArgs e) {
             _IsRunning = false;
@@ -283,6 +285,7 @@ namespace org.flamerat.GrandWild
 
 
         public void Launch() {
+
             _InitInstance();
             _InitSurface();
             _InitDevice();
@@ -298,8 +301,14 @@ namespace org.flamerat.GrandWild
             _CommandBuffers[0].InitMvpcManagementGw(_RenderingPipelineLayout, modelMatrixPushOffset: 0, vpcMatrixPushOffset: 64);
             _CommandBuffers[0].InitSelectTextureImageGw(_Device, _RenderingPipelineLayout, _TextureSamplerSetLayout, 1, _GraphicsQueue);
 
-            new System.Threading.Thread(_MainLoop);
 
+            _IsRunning = true;
+
+            _DisplayForm.Show();
+            _DisplayForm.Focus();
+            var KernelLoop=new System.Threading.Thread(_MainLoop);
+            KernelLoop.Name = "KernelMainLoop";
+            KernelLoop.Start();
         }
 
         private void _InitInstance() {
@@ -312,20 +321,21 @@ namespace org.flamerat.GrandWild
 
             List<string> extensions = new List<string>();
             extensions.Add("VK_KHR_surface");
-            extensions.Add("VK_KHR_swapchain");
-            extensions.Add("VK_KHR_display");
+            //extensions.Add("VK_KHR_display");
             extensions.Add("VK_KHR_win32_surface");
 
             List<string> layers = new List<string>();
 #if DEBUG
             {
-                layers.Add("VK_LAYER_LUNARG_standard_validation");
+                layers.Add("VK_LAYER_LUNARG_standard_validation\0");
             }
 #endif
 
             Vulkan.InstanceCreateInfo instanceInfo = new Vulkan.InstanceCreateInfo();
             instanceInfo.ApplicationInfo = appInfo;
+            instanceInfo.EnabledExtensionCount = (uint)extensions.Count;
             instanceInfo.EnabledExtensionNames = extensions.ToArray();
+            instanceInfo.EnabledLayerCount = (uint)layers.Count;
             instanceInfo.EnabledLayerNames = layers.ToArray();
 
             try {
@@ -347,7 +357,8 @@ namespace org.flamerat.GrandWild
         }
 
         private void _InitDevice() {
-            _PhysicalDevice = _Instance.EnumeratePhysicalDevices()[0];
+            var physicalDevices = _Instance.EnumeratePhysicalDevices();
+            _PhysicalDevice = physicalDevices[0];
             var queueFamilyProperties = _PhysicalDevice.GetQueueFamilyProperties();
             bool foundGraphicsBit = false;
             bool foundPresentSupport = false;
@@ -372,6 +383,9 @@ namespace org.flamerat.GrandWild
             Vulkan.DeviceCreateInfo deviceInfo = new Vulkan.DeviceCreateInfo();
             deviceInfo.QueueCreateInfos = new Vulkan.DeviceQueueCreateInfo[1] { queueInfo };
 
+            deviceInfo.EnabledExtensionCount = 1;
+            deviceInfo.EnabledExtensionNames = new string[1] { "VK_KHR_swapchain" };
+
             _Device = _PhysicalDevice.CreateDevice(deviceInfo);
 
             Vulkan.CommandPoolCreateInfo commandPoolInfo = new Vulkan.CommandPoolCreateInfo();
@@ -393,7 +407,7 @@ namespace org.flamerat.GrandWild
         private void _InitSwapchain() {
             Vulkan.SurfaceCapabilitiesKhr surfaceCapabilities = _PhysicalDevice.GetSurfaceCapabilitiesKHR(_Surface);
             _SwapchainImageCount = surfaceCapabilities.MinImageCount;
-            if (surfaceCapabilities.CurrentExtent.Width == 0xFFFFFFFF) {
+            if (surfaceCapabilities.CurrentExtent.Width != 0xFFFFFFFF) {
                 _SwapchainExtent.Width = _WindowWidth;
                 _SwapchainExtent.Height = _WindowHeight;
 
@@ -439,6 +453,7 @@ namespace org.flamerat.GrandWild
             swapchainInfo.ImageUsage = Vulkan.ImageUsageFlags.ColorAttachment;
             swapchainInfo.ImageSharingMode = Vulkan.SharingMode.Exclusive;
 
+
             if (_DeviceGraphicsQueueFamilyIndex != _DevicePresentQueueFamilyIndex) {
                 swapchainInfo.ImageSharingMode = Vulkan.SharingMode.Concurrent;
                 swapchainInfo.QueueFamilyIndexCount = 2;
@@ -452,6 +467,7 @@ namespace org.flamerat.GrandWild
             _SwapchainImageViews = new Vulkan.ImageView[2];
             Vulkan.ImageViewCreateInfo[] viewInfos = new Vulkan.ImageViewCreateInfo[_SwapchainImageCount];
             for (uint i = 0; i <= _SwapchainImageCount - 1; i++) {
+                viewInfos[i] = new Vulkan.ImageViewCreateInfo();
                 viewInfos[i].Image = _SwapchainImages[i];
                 viewInfos[i].ViewType = Vulkan.ImageViewType.View2D;
                 viewInfos[i].Format = _SwapchainImageFormat;
@@ -493,9 +509,12 @@ namespace org.flamerat.GrandWild
             _DepthBufferImage = _Device.CreateImage(depthImageInfo);
 
             var memoryRequirements = _Device.GetImageMemoryRequirements(_DepthBufferImage);
+            var firstAvailableType = 0;
+            while ((memoryRequirements.MemoryTypeBits >> firstAvailableType & 1) == 0) firstAvailableType++;
+
             Vulkan.MemoryAllocateInfo depthImageMemAllocInfo = new Vulkan.MemoryAllocateInfo {
                 AllocationSize = memoryRequirements.Size,
-                MemoryTypeIndex = 0
+                MemoryTypeIndex = (uint)firstAvailableType
             };
 
             var depthImageMemory = _Device.AllocateMemory(depthImageMemAllocInfo);
@@ -513,7 +532,7 @@ namespace org.flamerat.GrandWild
                     A = Vulkan.ComponentSwizzle.A
                 },
                 SubresourceRange = new Vulkan.ImageSubresourceRange {
-                    AspectMask = Vulkan.ImageAspectFlags.Color,
+                    AspectMask = Vulkan.ImageAspectFlags.Depth,
                     BaseMipLevel = 0,
                     LevelCount = 1,
                     BaseArrayLayer = 0,
@@ -543,10 +562,16 @@ namespace org.flamerat.GrandWild
 
             _TextureSamplerSetLayout = _Device.CreateDescriptorSetLayout(new Vulkan.DescriptorSetLayoutCreateInfo {
                 BindingCount = 1,
-                Bindings = new Vulkan.DescriptorSetLayoutBinding[1] {
+                Bindings = new Vulkan.DescriptorSetLayoutBinding[2] {
                     new Vulkan.DescriptorSetLayoutBinding {
                         Binding=0,
-                        DescriptorType=Vulkan.DescriptorType.CombinedImageSampler,
+                        DescriptorType=Vulkan.DescriptorType.Sampler,
+                        DescriptorCount=1,
+                        StageFlags=Vulkan.ShaderStageFlags.Fragment
+                    },
+                    new Vulkan.DescriptorSetLayoutBinding {
+                        Binding=1,
+                        DescriptorType=Vulkan.DescriptorType.SampledImage,
                         DescriptorCount=1,
                         StageFlags=Vulkan.ShaderStageFlags.Fragment
                     }
@@ -734,6 +759,8 @@ namespace org.flamerat.GrandWild
                 Vulkan.DynamicState.Viewport,
                 Vulkan.DynamicState.Scissor
             };
+            dynamicStateInfo.DynamicStates = dynamicStateEnables;
+            dynamicStateInfo.DynamicStateCount = (uint)dynamicStateEnables.Length;
 
             Vulkan.PipelineDepthStencilStateCreateInfo depthStencilStateInfo = new Vulkan.PipelineDepthStencilStateCreateInfo {
                 DepthTestEnable = true,
@@ -781,6 +808,7 @@ namespace org.flamerat.GrandWild
                 ColorBlendState = colorBlendStateInfo,
                 TessellationState = null,
                 MultisampleState = multisampleStateInfo,
+                DepthStencilState=depthStencilStateInfo,
                 DynamicState = dynamicStateInfo,
                 ViewportState = viewportStateInfo,
                 StageCount = 2,
@@ -802,17 +830,18 @@ namespace org.flamerat.GrandWild
         }
 
         private void _MainLoop() {
-            _DisplayForm.Show();
-            IsRunning = true;
             while (IsRunning) {
-                _FocusedScene.BeforeRenderBehavior();
-                _DrawFrame();
-                _FocusedScene.AfterRenderBehavior();
+                while (_FocusedScene != null) {
+                    _FocusedScene.BeforeRenderBehavior();
+                    _DrawFrame();
+                    _FocusedScene.AfterRenderBehavior();
+                }
             }
             _DisplayForm.Hide();
         }
 
         private void _DrawFrame() {
+            var firstSubmit = true;
             var currentImage = _Device.AcquireNextImageKHR(_Swapchain, ulong.MaxValue, _ImageAcquireSemaphore);
             _CommandBuffers[0].Begin(new Vulkan.CommandBufferBeginInfo { Flags = Vulkan.CommandBufferUsageFlags.OneTimeSubmit });
             _CommandBuffers[0].CmdTransitImageLayoutGw(
@@ -821,7 +850,12 @@ namespace org.flamerat.GrandWild
                 from: Vulkan.ImageLayout.Undefined,
                 to: Vulkan.ImageLayout.ColorAttachmentOptimal
             );
-
+            _CommandBuffers[0].CmdTransitImageLayoutGw(
+                image: _DepthBufferImage,
+                aspectMask: Vulkan.ImageAspectFlags.Depth,
+                from: Vulkan.ImageLayout.Undefined,
+                to: Vulkan.ImageLayout.DepthStencilAttachmentOptimal
+            );
             
 
             Vulkan.RenderPassBeginInfo renderPassBeginInfo = new Vulkan.RenderPassBeginInfo {
@@ -863,32 +897,61 @@ namespace org.flamerat.GrandWild
 
             _CommandBuffers[0].CmdSetVpcMatrixGw(_FocusedScene.CameraVpcMatric);
 
-            foreach(var entity in _FocusedScene.Entities) {
+            foreach(var entity in _FocusedScene.Entities.ToArray()) {
                 _CommandBuffers[0].CmdDrawRenderableGw(entity);
                 if (_CommandBuffers[0].IsSamplerPoolFullGw()) {
+                    _CommandBuffers[0].CmdEndRenderPass();
                     _CommandBuffers[0].End();
-                    _GraphicsQueue.Submit(new Vulkan.SubmitInfo {
-                        CommandBufferCount = 1,
-                        CommandBuffers = new Vulkan.CommandBuffer[1] { _CommandBuffers[0] },
-                        WaitSemaphoreCount = 2,
-                        WaitSemaphores = new Vulkan.Semaphore[2] { _ImageAcquireSemaphore, _GraphicsQueueSemaphore },
-                        SignalSemaphoreCount = 1,
-                        SignalSemaphores = new Vulkan.Semaphore[1] { _GraphicsQueueSemaphore },
-                    }, fence: _DrawFence);
+                    if (firstSubmit) {
+                        _GraphicsQueue.Submit(new Vulkan.SubmitInfo {
+                            CommandBufferCount = 1,
+                            CommandBuffers = new Vulkan.CommandBuffer[1] { _CommandBuffers[0] },
+                            WaitSemaphoreCount = 1,
+                            WaitSemaphores = new Vulkan.Semaphore[1] { _ImageAcquireSemaphore},
+                            WaitDstStageMask = new Vulkan.PipelineStageFlags[1] { Vulkan.PipelineStageFlags.ColorAttachmentOutput},
+                            SignalSemaphoreCount = 0,
+                            SignalSemaphores = new Vulkan.Semaphore[0] { },
+                        }, fence: _DrawFence);
+                    }else {
+                        _GraphicsQueue.Submit(new Vulkan.SubmitInfo {
+                            CommandBufferCount = 1,
+                            CommandBuffers = new Vulkan.CommandBuffer[1] { _CommandBuffers[0] },
+                            WaitSemaphoreCount = 2,
+                            WaitSemaphores = new Vulkan.Semaphore[2] { _ImageAcquireSemaphore, _GraphicsQueueSemaphore },
+                            WaitDstStageMask = new Vulkan.PipelineStageFlags[2] { Vulkan.PipelineStageFlags.ColorAttachmentOutput, Vulkan.PipelineStageFlags.AllCommands },
+                            SignalSemaphoreCount = 1,
+                            SignalSemaphores = new Vulkan.Semaphore[1] { _GraphicsQueueSemaphore },
+                        }, fence: _DrawFence);
+                    }
                     _CommandBuffers[0].FlushTextureImageGw();
                     _CommandBuffers[0].Begin(new Vulkan.CommandBufferBeginInfo { Flags = Vulkan.CommandBufferUsageFlags.OneTimeSubmit });
+                    _CommandBuffers[0].CmdBeginRenderPass(renderPassBeginInfo, Vulkan.SubpassContents.Inline);
                 }
             }
 
+            _CommandBuffers[0].CmdEndRenderPass();
             _CommandBuffers[0].End();
-            _GraphicsQueue.Submit(new Vulkan.SubmitInfo {
-                CommandBufferCount = 1,
-                CommandBuffers = new Vulkan.CommandBuffer[1] { _CommandBuffers[0] },
-                WaitSemaphoreCount = 2,
-                WaitSemaphores = new Vulkan.Semaphore[2] { _ImageAcquireSemaphore, _GraphicsQueueSemaphore },
-                SignalSemaphoreCount = 1,
-                SignalSemaphores = new Vulkan.Semaphore[1] { _GraphicsQueueSemaphore },
-            }, fence: _DrawFence);
+            if (firstSubmit) {
+                _GraphicsQueue.Submit(new Vulkan.SubmitInfo {
+                    CommandBufferCount = 1,
+                    CommandBuffers = new Vulkan.CommandBuffer[1] { _CommandBuffers[0] },
+                    WaitSemaphoreCount = 1,
+                    WaitSemaphores = new Vulkan.Semaphore[1] { _ImageAcquireSemaphore },
+                    WaitDstStageMask = new Vulkan.PipelineStageFlags[1] { Vulkan.PipelineStageFlags.ColorAttachmentOutput },
+                    SignalSemaphoreCount = 0,
+                    SignalSemaphores = new Vulkan.Semaphore[0] {  },
+                }, fence: _DrawFence);
+            } else {
+                _GraphicsQueue.Submit(new Vulkan.SubmitInfo {
+                    CommandBufferCount = 1,
+                    CommandBuffers = new Vulkan.CommandBuffer[1] { _CommandBuffers[0] },
+                    WaitSemaphoreCount = 2,
+                    WaitSemaphores = new Vulkan.Semaphore[2] { _ImageAcquireSemaphore, _GraphicsQueueSemaphore },
+                    WaitDstStageMask = new Vulkan.PipelineStageFlags[2] { Vulkan.PipelineStageFlags.ColorAttachmentOutput, Vulkan.PipelineStageFlags.AllCommands },
+                    SignalSemaphoreCount = 1,
+                    SignalSemaphores = new Vulkan.Semaphore[1] { _GraphicsQueueSemaphore },
+                }, fence: _DrawFence);
+            }
 
             _Device.WaitForFence(_DrawFence, waitAll: true, timeout: ulong.MaxValue);
 

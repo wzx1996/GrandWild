@@ -77,6 +77,7 @@ namespace org.flamerat.GrandWild {
             };
             _DeviceMemory = device.AllocateMemory(memAllocInfo);
             for (uint i = 0; i <= buffers.Length - 1; i++) {
+                _Device.BindBufferMemory(buffers[i].Buffer, _DeviceMemory, bufferOffset[i]);
                 buffers[i].SendToGpu(device, _DeviceMemory, bufferOffset[i]);
             }
         }
@@ -84,14 +85,14 @@ namespace org.flamerat.GrandWild {
     public class GpuImageMemory : GpuStoredObjectMemory {
         public GpuImageMemory(PhysicalDevice physicalDevice, Device device, IGpuImage[] images) {
             _Device = device;
-            DeviceSize[] ImageSize = new DeviceSize[images.Length];
-            DeviceSize[] ImageOffset = new DeviceSize[images.Length];
+            DeviceSize[] imageSize = new DeviceSize[images.Length];
+            DeviceSize[] imageOffset = new DeviceSize[images.Length];
             DeviceSize memorySize = 0;
-            ImageOffset[0] = 0;
+            imageOffset[0] = 0;
             for (uint i = 0; i <= images.Length - 1; i++) {
-                ImageSize[i] = device.GetImageMemoryRequirements(images[i].Image).Size;
-                if (i != 0) ImageOffset[i] = ImageSize[i] + ImageOffset[i - 1];
-                memorySize += ImageSize[i];
+                imageSize[i] = device.GetImageMemoryRequirements(images[i].Image).Size;
+                if (i != 0) imageOffset[i] = imageSize[i] + imageOffset[i - 1];
+                memorySize += imageSize[i];
             }
 
             Vulkan.PhysicalDeviceMemoryProperties memoryProperty = physicalDevice.GetMemoryProperties();
@@ -113,7 +114,8 @@ namespace org.flamerat.GrandWild {
             };
             _DeviceMemory = device.AllocateMemory(memAllocInfo);
             for (uint i = 0; i <= images.Length - 1; i++) {
-                images[i].SendToGpu(device, _DeviceMemory, ImageOffset[i]);
+                _Device.BindImageMemory(images[i].Image, _DeviceMemory, imageOffset[i]);
+                images[i].SendToGpu(device, _DeviceMemory, imageOffset[i]);
             }
         }
     }

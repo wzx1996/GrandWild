@@ -65,8 +65,9 @@ namespace org.flamerat.GrandWild {
             _UniformBufferMemory = _Device.AllocateMemory(memAllocInfo);
 
             _MemorySize = memoryRequirements.Size;
-            for(uint i = 0; i <= _Size; i++) {
+            for(uint i = 0; i <= _Size-1; i++) {
                 _Device.BindBufferMemory(_Buffer[i], _UniformBufferMemory, 0);
+                BufferInfo[i] = new Vulkan.DescriptorBufferInfo();
                 BufferInfo[i].Buffer = _Buffer[i];
                 BufferInfo[i].Offset = 0;
                 BufferInfo[i].Range = _StructureSize;

@@ -126,7 +126,7 @@ namespace org.flamerat.GrandWild.Resource {
                         break;
                     case ReadingState.LineEnd:
                         lineBuffer = objFileStream.ReadLine();
-                        tokenBuffer = lineBuffer.Split(' ','\t').AsEnumerable() as Queue<string>;
+                        foreach(var token in lineBuffer.Split(' ','\t')) tokenBuffer.Enqueue(token);
                         readingState = ReadingState.LineHeader;
                         break;
                     default:
@@ -173,15 +173,16 @@ namespace org.flamerat.GrandWild.Resource {
                                 });
                                 indexList.Add(firstPoint);
                                 indexList.Add(secondPoint);
-                                secondPoint =(UInt16) indexList.Count;
+                                secondPoint =(UInt16) vertexList.Count;
                                 indexList.Add(secondPoint);
                             }
                         }
-                        Vertexes = vertexList.ToArray();
-                        Indexes = indexList.ToArray();
                         break;
                 }
             }
+            Vertexes = vertexList.ToArray();
+            Indexes = indexList.ToArray();
+            
         }
         public GrandWildKernel.Vertex[] Vertexes { get; private set; }
         public UInt16[] Indexes { get; private set; }

@@ -17,17 +17,17 @@ namespace org.flamerat.GrandWild.Resource {
                 fixed(byte* pData = Data) {
                     UInt32* pData32 = (UInt32*)pData;
                     if (flipVertical) {
-                        for (uint i = 0; i <= lockedBitmap.Height; i++) {
-                            for (uint j = 0; j <= lockedBitmap.Width; j++) {
-                                UInt32 currentPixel = pSourceImage[i * lockedBitmap.Stride + j];
+                        for (uint i = 0; i <= lockedBitmap.Height-1; i++) {
+                            for (uint j = 0; j <= lockedBitmap.Width-1; j++) {
+                                UInt32 currentPixel = pSourceImage[i * lockedBitmap.Stride/4 + j];
                                 currentPixel = (currentPixel >> 24) + (currentPixel << 8); //ARGB -> RGBA
-                                pData32[(i-lockedBitmap.Height) * lockedBitmap.Width + j] = currentPixel;
+                                pData32[(lockedBitmap.Height-1-i) * lockedBitmap.Width + j] = currentPixel;
                             }
                         }
                     }else {
-                        for (uint i = 0; i <= lockedBitmap.Height; i++) {
-                            for (uint j = 0; j <= lockedBitmap.Width; j++) {
-                                UInt32 currentPixel = pSourceImage[i * lockedBitmap.Stride + j];
+                        for (uint i = 0; i <= lockedBitmap.Height-1; i++) {
+                            for (uint j = 0; j <= lockedBitmap.Width-1; j++) {
+                                UInt32 currentPixel = pSourceImage[i * lockedBitmap.Stride/4 + j];
                                 currentPixel = (currentPixel >> 24) + (currentPixel << 8); //ARGB -> RGBA
                                 pData32[i * lockedBitmap.Width + j] = currentPixel;
                             }

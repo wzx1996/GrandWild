@@ -40,7 +40,7 @@ namespace org.flamerat.GrandWild.Rendering {
             public float ZRotation;
             public mat4 ModelMatrix {
                 get {
-                    mat4 result;
+                    mat4 result=new mat4(1.0F);
                     glm.translate(result, new vec3(-Origin.x,-Origin.y,-Origin.z));
                     glm.scale(result, Scale);
                     glm.rotate(result, glm.radians(XRotation), xAxis);
