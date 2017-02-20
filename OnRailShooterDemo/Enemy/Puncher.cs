@@ -22,7 +22,8 @@ namespace org.flamerat.OnRailShooterDemo.Enemy {
         }
 
         private void _OnTimeTick(GrandWild.Timer timer) {
-            MoveForSelfCoordinate(MoveSpeed * (float)timer.ActualInteval.TotalSeconds, 0, 0);
+            //MoveForSelfCoordinate(MoveSpeed * (float)timer.ActualInteval.TotalSeconds, 0, 0);
+            MoveForSelfCoordinate(MoveSpeed * (float)timer.TargetInteval.TotalSeconds, 0, 0);
         }
     }
 }

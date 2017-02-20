@@ -38,8 +38,8 @@ namespace org.flamerat.OnRailShooterDemo {
 
         public bool TestIfHit(vec3 hitSourcePos) {
             var hitboxHalfWidth = HitboxWidth / 2;
-            if (Math.Abs(this.Position.x - hitSourcePos.x) <= hitboxHalfWidth) return true;
-            if (Math.Abs(this.Position.y - hitSourcePos.y) <= hitboxHalfWidth) return true;
+            if (Math.Abs(this.Position.x - hitSourcePos.x) <= hitboxHalfWidth) 
+            if (Math.Abs(this.Position.y - hitSourcePos.y) <= hitboxHalfWidth) 
             if (Math.Abs(this.Position.z - hitSourcePos.z) <= hitboxHalfWidth) return true;
             return false;
         }

@@ -86,11 +86,10 @@ namespace org.flamerat.OnRailShooterDemo {
             Scene.SendRequiredGpuObjectToGpu(Kernel.PhysicalDevice,Kernel.Device);
             _Kernel.FocusedScene = Scene;
 
-            while (_Kernel.IsRunning) System.Threading.Thread.Sleep(2000);
+            var debugForm = new DebugForm();
 
-            return 0;
+            return Kernel.PassControl();
         }
-
 
         private static void _OnKeyDownBehavior(GrandWildKernel sender, System.Windows.Forms.Keys key) {
             switch (key) {
@@ -109,7 +108,7 @@ namespace org.flamerat.OnRailShooterDemo {
                 case Forms.Keys.Space:
                     Scene.SetPlayerMoveStatus(forward: GameScene.Sign.Positive);
                     break;
-                case Forms.Keys.LShiftKey:
+                case Forms.Keys.ShiftKey:
                     Scene.SetPlayerMoveStatus(forward: GameScene.Sign.Negative);
                     break;
                 case Forms.Keys.J:
@@ -138,7 +137,7 @@ namespace org.flamerat.OnRailShooterDemo {
                 case Forms.Keys.Space:
                     Scene.SetPlayerMoveStatus(forward: GameScene.Sign.Neutral);
                     break;
-                case Forms.Keys.LShiftKey:
+                case Forms.Keys.ShiftKey:
                     Scene.SetPlayerMoveStatus(forward: GameScene.Sign.Neutral);
                     break;
                 case Forms.Keys.J:

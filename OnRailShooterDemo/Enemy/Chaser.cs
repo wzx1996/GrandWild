@@ -22,12 +22,14 @@ namespace org.flamerat.OnRailShooterDemo.Enemy {
         }
 
         private void _OnTimeTick(GrandWild.Timer timer) {
-            var player = (BelongingScenes as IEnumerable<GameScene>).Where(scene => scene != null).First().Player;
+            //var player = (BelongingScenes as IEnumerable<GameScene>).Where(scene => scene != null).First().Player;
+            var player = Program.Scene.Player;
             var direction = player.Position - Position;
             var yr = -glm.acos(direction.x / (float)Math.Sqrt(direction.x * direction.x + direction.z * direction.z));
             var xr = glm.acos(direction.y / (float)Math.Sqrt(direction.y * direction.y + direction.z * direction.z));
             RotateTo(glm.degrees(xr), glm.degrees(yr), 0);
-            MoveForSelfCoordinate(MoveSpeed * (float)timer.ActualInteval.TotalSeconds,0,0);
+            //MoveForSelfCoordinate(MoveSpeed * (float)timer.ActualInteval.TotalSeconds,0,0);
+            MoveForSelfCoordinate(MoveSpeed * (float)timer.TargetInteval.TotalSeconds, 0, 0);
         }
     }
 }
