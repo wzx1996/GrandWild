@@ -10,8 +10,8 @@ layout(std140,set=0,binding=0) uniform SceneStruct{
 	float globalLightStrength;
     vec4 globalLightDirection;
     vec4 globalLightColor;
+	vec4 fogColor;
     float fogDensity;
-    vec4 fogColor;
 } Scene;
 
 layout (location=0) in vec4 Pos;
@@ -31,6 +31,8 @@ void main(){
 	float AbsoluteBrightness=dot(TransformedNormal,Scene.globalLightDirection);
 	Brightness=(-1.0)*Scene.globalLightStrength*AbsoluteBrightness;
 	OutColor=InColor;
-	gl_Position=PushConstants.Model*PushConstants.ViewProjectionClip * Pos;
+	vec4 position=PushConstants.ViewProjectionClip*PushConstants.Model* Pos;
+	position=position*(1/position.w);
+	gl_Position=position;
 	TextureCoord=InTextureCoord;
 }

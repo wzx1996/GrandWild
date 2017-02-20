@@ -51,28 +51,28 @@ namespace org.flamerat.GrandWild {
         /// <param name="name"></param>
         /// <param name="stage"></param>
         /// <param name="specializationInfo"></param>
-        public ShaderStage(Device device, string fileName, string name="", ShaderStageFlags stage=0, SpecializationInfo specializationInfo=null) {
+        public ShaderStage(Device device, string fileName, string name="main", ShaderStageFlags stage=0, SpecializationInfo specializationInfo=null) {
             string pureFileName = Path.GetFileName(fileName);
-            if (Path.GetExtension(pureFileName) == "spv") pureFileName = Path.GetFileNameWithoutExtension(fileName);
-            if (stage != 0) {
+            if (Path.GetExtension(pureFileName) == ".spv") pureFileName = Path.GetFileNameWithoutExtension(fileName);
+            if (stage == 0) {
                 bool fileNameSpecifiedStage = true;
                 switch (Path.GetExtension(pureFileName)) {
-                    case "vert":
+                    case ".vert":
                         stage = ShaderStageFlags.Vertex;
                         break;
-                    case "tesc":
+                    case ".tesc":
                         stage = ShaderStageFlags.TessellationControl;
                         break;
-                    case "tese":
+                    case ".tese":
                         stage = ShaderStageFlags.TessellationEvaluation;
                         break;
-                    case "geom":
+                    case ".geom":
                         stage = ShaderStageFlags.Geometry;
                         break;
-                    case "frag":
+                    case ".frag":
                         stage = ShaderStageFlags.Fragment;
                         break;
-                    case "comp":
+                    case ".comp":
                         stage = ShaderStageFlags.Compute;
                         break;
                     default:
@@ -82,7 +82,7 @@ namespace org.flamerat.GrandWild {
                 if (fileNameSpecifiedStage) pureFileName = Path.GetFileNameWithoutExtension(pureFileName);
             }
             if (stage == 0) throw new Exception(fileName + ": Shader stage not specified.");
-            if (name == "") name = pureFileName;
+            //if (name == "") name = pureFileName;
 
             byte[] code;
             code = File.ReadAllBytes(fileName);
@@ -90,16 +90,16 @@ namespace org.flamerat.GrandWild {
             CreateShaderStage(device, code, name, stage, specializationInfo);
         }
 
-
+        private ShaderModule _ShaderModule;
         private void CreateShaderStage(Device device, byte[] code, string name, ShaderStageFlags stage, SpecializationInfo specializationInfo) {
             ShaderModuleCreateInfo moduleInfo = new ShaderModuleCreateInfo {
                 CodeBytes = code,
             };
-            ShaderModule shaderModule = device.CreateShaderModule(moduleInfo);
+            _ShaderModule = device.CreateShaderModule(moduleInfo);
             Info = new PipelineShaderStageCreateInfo {
                 Name = name,
                 Stage = stage,
-                Module = shaderModule,
+                Module = _ShaderModule,
                 SpecializationInfo = specializationInfo
             };
         }

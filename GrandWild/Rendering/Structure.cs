@@ -14,19 +14,19 @@ namespace org.flamerat.GrandWild.Rendering {
         }
 
         public void Draw(CommandBuffer commandBuffer, mat4 parentModelMatrix) {
-            foreach (var subpart in _SubParts) if(subpart.Visible) commandBuffer.CmdDrawPartGw(subpart.Part, parentModelMatrix * subpart.ModelMatrix);
+            foreach (var subpart in SubParts) if(subpart.Visible) commandBuffer.CmdDrawPartGw(subpart.Part, parentModelMatrix * subpart.ModelMatrix);
         }
 
         public IEnumerable<IGpuBuffer> GetIndexBuffers() {
-            return _SubParts.SelectMany(subpart => subpart.Part.GetIndexBuffers()).Distinct();
+            return SubParts.SelectMany(subpart => subpart.Part.GetIndexBuffers()).Distinct();
         }
 
         public IEnumerable<IGpuImage> GetTextureImages() {
-            return _SubParts.SelectMany(subpart => subpart.Part.GetTextureImages()).Distinct();
+            return SubParts.SelectMany(subpart => subpart.Part.GetTextureImages()).Distinct();
         }
 
         public IEnumerable<IGpuBuffer> GetVertexBuffers() {
-            return _SubParts.SelectMany(subpart => subpart.Part.GetVertexBuffers()).Distinct();
+            return SubParts.SelectMany(subpart => subpart.Part.GetVertexBuffers()).Distinct();
         }
 
         public struct SubPart {
@@ -40,13 +40,13 @@ namespace org.flamerat.GrandWild.Rendering {
             public float ZRotation;
             public mat4 ModelMatrix {
                 get {
-                    mat4 result;
-                    glm.translate(result, new vec3(-Origin.x,-Origin.y,-Origin.z));
-                    glm.scale(result, Scale);
-                    glm.rotate(result, glm.radians(XRotation), xAxis);
-                    glm.rotate(result, glm.radians(YRotation), yAxis);
-                    glm.rotate(result, glm.radians(ZRotation), zAxis);
-                    glm.translate(result, Position);
+                    mat4 result=new mat4(1.0F);
+                    result=glm.translate(mat4.identity(), new vec3(-Origin.x,-Origin.y,-Origin.z))*result;
+                    result=glm.scale(mat4.identity(),Scale) * result;
+                    result=glm.rotate(glm.radians(XRotation), xAxis) * result;
+                    result=glm.rotate(glm.radians(YRotation), yAxis) * result;
+                    result=glm.rotate(glm.radians(ZRotation), zAxis) * result;
+                    result=glm.translate(mat4.identity(), Position) * result;
                     return result;
                 }
             }
@@ -55,7 +55,7 @@ namespace org.flamerat.GrandWild.Rendering {
             private static readonly vec3 zAxis = new vec3(0, 0, 1);
         }
 
-        protected SubPart[] _SubParts;
+        public SubPart[] SubParts;
 
     }
 }

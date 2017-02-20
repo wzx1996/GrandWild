@@ -16,6 +16,7 @@ namespace org.flamerat.GrandWild {
         public uint Size { get; private set; }
         public UInt16[] Data { get { return _Data; } }
         public IndexBuffer(Device device, UInt16[] data) {
+            _Data = data;
             Size =(uint) data.Length;
             BufferCreateInfo bufferInfo = new BufferCreateInfo {
                 Usage = BufferUsageFlags.IndexBuffer,
@@ -28,7 +29,14 @@ namespace org.flamerat.GrandWild {
             var memReqs = device.GetBufferMemoryRequirements(_Buffer);
             var bufferSize = memReqs.Size;
             var pDeviceMemory = device.MapMemory(memory, offset, bufferSize);
-            System.Runtime.InteropServices.Marshal.StructureToPtr(_Data, pDeviceMemory, false);
+            unsafe
+            {
+                fixed(UInt16* pData = _Data) {
+                    for(int i = 0; i <= _Data.Length - 1; i++) {
+                        ((UInt16*)pDeviceMemory)[i] = pData[i];
+                    }
+                }
+            }
             MappedMemoryRange memRange = new Vulkan.MappedMemoryRange();
             memRange.Memory = memory;
             memRange.Offset = offset;

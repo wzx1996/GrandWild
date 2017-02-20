@@ -7,7 +7,8 @@ using GlmNet;
 
 namespace org.flamerat.GrandWild.Resource {
     public class WaveformObj:IResourceLoader {
-        public WaveformObj(string fileName,bool clockWise=false,bool flipTextureVertical=true) {
+        public WaveformObj(string fileName,bool clockWise=false,bool flipTextureVertical=true,vec4? color=null) {
+            if (!color.HasValue) color = new vec4(0, 0, 0, 0);
             var objFileStream = new System.IO.StreamReader(fileName);
             List<vec4> rawVertexes=new List<vec4>();
             List<vec4> rawNormals = new List<vec4>();
@@ -21,6 +22,7 @@ namespace org.flamerat.GrandWild.Resource {
             string lineBuffer = "";
             Queue<string> tokenBuffer = new Queue<string>();
             string currentToken = "";
+            bool faceMode = false;
 
             //Finite state machine for reading file
             while(!objFileStream.EndOfStream){
@@ -29,7 +31,14 @@ namespace org.flamerat.GrandWild.Resource {
                         readingState = ReadingState.LineEnd;
                         break;
                     default:
-                        currentToken=tokenBuffer.Dequeue();
+                        switch (faceMode) {
+                            case true:
+                                break;
+                            default:
+                                currentToken = tokenBuffer.Dequeue();
+                                break;
+                        }
+                        
                         break;
                 }
 
@@ -49,6 +58,7 @@ namespace org.flamerat.GrandWild.Resource {
                                 break;
                             case "f":
                                 readingState = ReadingState.FaceBody;
+                                faceMode = true;
                                 break;
                             default:
                                 tokenBuffer.Clear();
@@ -122,10 +132,11 @@ namespace org.flamerat.GrandWild.Resource {
                         }
                         rawFaces.Add(currentFace);
                         tokenBuffer.Clear();
+                        faceMode = false;
                         break;
                     case ReadingState.LineEnd:
                         lineBuffer = objFileStream.ReadLine();
-                        tokenBuffer = lineBuffer.Split(' ','\t').AsEnumerable() as Queue<string>;
+                        foreach(var token in lineBuffer.Split(' ','\t')) tokenBuffer.Enqueue(token);
                         readingState = ReadingState.LineHeader;
                         break;
                     default:
@@ -152,35 +163,42 @@ namespace org.flamerat.GrandWild.Resource {
                             vertexList.Add(new GrandWildKernel.Vertex {
                                 Position = rawVertexes[(int)face.vertexes[0].Vertex - 1],
                                 Normal = rawNormals[(int)face.vertexes[0].Normal - 1],
+                                Color = color.Value,
                                 Texture = rawTextures[(int)face.vertexes[0].Vertex - 1],
                             });
-                            UInt16 firstPoint =(UInt16) vertexList.Count;
+                            UInt16 firstPoint =(UInt16) (vertexList.Count-1);
                             vertexList.Add(new GrandWildKernel.Vertex {
                                 Position = rawVertexes[(int)face.vertexes[1].Vertex - 1],
                                 Normal = rawNormals[(int)face.vertexes[1].Normal - 1],
+                                Color = color.Value,
                                 Texture = rawTextures[(int)face.vertexes[1].Vertex - 1],
                             });
-                            UInt16 secondPoint = (UInt16)vertexList.Count;
+                            UInt16 secondPoint = (UInt16)(vertexList.Count-1);
                             for (var i = 2; i <= face.vertexes.Length - 1; i++) {
                                 vertexList.Add(new GrandWildKernel.Vertex {
                                     Position = rawVertexes[(int)face.vertexes[i].Vertex - 1],
                                     Normal = rawNormals[(int)face.vertexes[i].Normal - 1],
+                                    Color = color.Value,
                                     Texture = rawTextures[(int)face.vertexes[i].Vertex - 1],
                                 });
                                 indexList.Add(firstPoint);
                                 indexList.Add(secondPoint);
-                                secondPoint =(UInt16) indexList.Count;
+                                secondPoint =(UInt16) (vertexList.Count-1);
                                 indexList.Add(secondPoint);
                             }
                         }
-                        Vertexes = vertexList.ToArray();
-                        Indexes = indexList.ToArray();
                         break;
                 }
             }
+            Vertexes = vertexList.ToArray();
+            Indexes = indexList.ToArray();
+            
         }
         public GrandWildKernel.Vertex[] Vertexes { get; private set; }
         public UInt16[] Indexes { get; private set; }
+        public void SetColor(vec4 color) {
+            Vertexes = Vertexes.Select(x => new GrandWildKernel.Vertex { Position = x.Position, Texture = x.Texture, Color = color, Normal = x.Normal }).ToArray();
+        }
         private vec3 _GetFaceNormal(vec3 p1,vec3 p2,vec3 p3) {
             vec3 side1 = p2 - p1;
             vec3 side2 = p3 - p1;

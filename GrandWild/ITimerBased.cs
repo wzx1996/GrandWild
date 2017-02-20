@@ -26,6 +26,7 @@ namespace org.flamerat.GrandWild {
         }
         public TimeSpan ActualInteval {
             get {
+                //FIXME inteval error
                 return _CurrentTickTimeFromStart - _PreviousTickTimeFromStart;
             }
         }
@@ -100,7 +101,7 @@ namespace org.flamerat.GrandWild {
         private void _Unskippable(object sender, System.Timers.ElapsedEventArgs e) {
             _PreviousTickTimeFromStart = _CurrentTickTimeFromStart;
             _CurrentTickTimeFromStart = _PreviousTickTimeFromStart + new TimeSpan((long)(_TimeFlowSpeedScale*(e.SignalTime - _PreviousTickTime).Ticks));
-            OnTimeTick(this);
+            OnTimeTick?.Invoke(this);
         }
 
         //If previous event hasn't complete the timer will be jammed and skip the new event;
