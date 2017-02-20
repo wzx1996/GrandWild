@@ -26,6 +26,7 @@ namespace org.flamerat.GrandWild {
         }
         public TimeSpan ActualInteval {
             get {
+                //FIXME inteval error
                 return _CurrentTickTimeFromStart - _PreviousTickTimeFromStart;
             }
         }

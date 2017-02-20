@@ -62,7 +62,7 @@ namespace org.flamerat.GrandWild {
                         for (int i = 0; i <= _Data.GetLength(0) - 1; i++) {
                             for(int j = 0; j <= realWidth-1; j++) {
                                 //With this method, each time there's a word being copied, rathre than a byte, thus in theory this should be faster
-                                *(UInt32*)(pDeviceMemory + i * paddedWidth * 4 + j * 4) = *(UInt32*)(pData + i * realWidth * 4 + j * 4);
+                                *(UInt32*)(pDeviceMemory + i * paddedWidth + j * 4) = *(UInt32*)(pData + i * realWidth + j * 4);
                             }
                         }
                     }

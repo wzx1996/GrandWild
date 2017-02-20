@@ -36,7 +36,7 @@ namespace org.flamerat.GrandWild.Scene {
             _Entities.Add(entity);
             entity.BelongingScenes.Add(this);
             if (entity.GetType().GetInterfaces().Contains(typeof(ITimerBased))) {
-                _MainTimer.OnTimeTick -= ((ITimerBased)entity).TimeTickBehavior;
+                _MainTimer.OnTimeTick += ((ITimerBased)entity).TimeTickBehavior;
             }
         }
         public void AddEntities(IEnumerable<Entity.Entity> entities) {
@@ -89,11 +89,17 @@ namespace org.flamerat.GrandWild.Scene {
             textureMemory = new GpuImageMemory(physicalDevice, device, allTextures);
         }
 
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Explicit)]
         public struct SceneInfo {
+            [System.Runtime.InteropServices.FieldOffset(0)]
             public float globalLightStrength;
+            [System.Runtime.InteropServices.FieldOffset(16)]
             public vec4 globalLightDirection;
+            [System.Runtime.InteropServices.FieldOffset(32)]
             public vec4 globalLightColor;
+            [System.Runtime.InteropServices.FieldOffset(48)]
             public vec4 fogColor;
+            [System.Runtime.InteropServices.FieldOffset(64)]
             public float fogDensity;
         }
 
@@ -110,18 +116,18 @@ namespace org.flamerat.GrandWild.Scene {
             public mat4 ViewProjectionMatrix {
                 get {
                     mat4 result = new mat4(1.0F);
-                    glm.translate(result, new vec3(-Position.x, -Position.y, -Position.z));
-                    glm.rotate(result, -glm.radians(XRotation), new vec3(1, 0, 0));
-                    glm.rotate(result, -glm.radians(YRotation), new vec3(0, 1, 0));
-                    glm.rotate(result, -glm.radians(ZRotation), new vec3(0, 0, 1));
+                    result=glm.translate(mat4.identity(), new vec3(-Position.x, -Position.y, -Position.z))*result;
+                    result=glm.rotate(- glm.radians(XRotation), new vec3(1, 0, 0))*result;
+                    result=glm.rotate(-glm.radians(YRotation), new vec3(0, 1, 0)) * result;
+                    result=glm.rotate(-glm.radians(ZRotation), new vec3(0, 0, 1)) * result;
                     if (IsOrthoMode) {
                         result = glm.ortho(
                             left: -OrthoSpan / 2, right: OrthoSpan / 2,
                             bottom: OrthoSpan / 2, top: -OrthoSpan / 2, 
                             zNear: Near, zFar: Far
-                        );
+                        )*result;
                     }else {
-                        result = glm.perspective(fovy: FieldOfView, aspect: 1.0F, zNear: Near, zFar: Far)*result;
+                        result = glm.perspective(fovy: glm.radians(FieldOfView), aspect: 1.0F, zNear: Near, zFar: Far)*result;
                     }
                     return result;
                 }
@@ -167,9 +173,21 @@ namespace org.flamerat.GrandWild.Scene {
         public void SetAspectRatio(float x,float y) {
             _Screen.SetAspectRatio(x, y);
         }
+        public void SwitchAspectRatioMode(ScreenInfo.AspectRatioMode mode) {
+            _Screen.ScreenAspectRatioMode = mode;
+        }
+
+        public void SetCameraProperty(float? nearPlane=null,float? farPlane=null,float? fieldOfView=null,bool? orthoMode=null,float? orthoSpan = null) {
+            if (nearPlane.HasValue) _Camera.Near = nearPlane.Value;
+            if (farPlane.HasValue) _Camera.Far = farPlane.Value;
+            if (fieldOfView.HasValue) _Camera.FieldOfView = fieldOfView.Value;
+            if (orthoMode.HasValue) _Camera.IsOrthoMode = orthoMode.Value;
+            if (orthoSpan.HasValue) _Camera.OrthoSpan = orthoSpan.Value;
+        }
+
         public mat4 CameraVpcMatric {
             get {
-                return _Screen.ClipMatrix * _Camera.ViewProjectionMatrix;
+                return glm.scale(mat4.identity(),new vec3(1,-1,1))*_Screen.ClipMatrix * _Camera.ViewProjectionMatrix;
             }
         }
 
@@ -188,9 +206,9 @@ namespace org.flamerat.GrandWild.Scene {
         public void MoveForSelfCoordinate(float right, float up, float forward) {
             var selfMovement = new vec4(right, up, -forward,1);
             mat4 rotateMatrix = new mat4(1);
-            glm.rotate(rotateMatrix, glm.radians(_Camera.XRotation), new vec3(1, 0, 0));
-            glm.rotate(rotateMatrix, glm.radians(_Camera.YRotation), new vec3(0, 1, 0));
-            glm.rotate(rotateMatrix, glm.radians(_Camera.ZRotation), new vec3(0, 0, 1));
+            rotateMatrix=glm.rotate(rotateMatrix, glm.radians(_Camera.XRotation), new vec3(1, 0, 0));
+            rotateMatrix=glm.rotate(rotateMatrix, glm.radians(_Camera.YRotation), new vec3(0, 1, 0));
+            rotateMatrix=glm.rotate(rotateMatrix, glm.radians(_Camera.ZRotation), new vec3(0, 0, 1));
             selfMovement = rotateMatrix * selfMovement;
             MoveFor(new vec3(selfMovement));
         }
@@ -231,17 +249,17 @@ namespace org.flamerat.GrandWild.Scene {
             throw new NotImplementedException();
         }
 
-        public delegate void OnRenderEvent(Scene sender);
+        public delegate void OnRenderEvent(Scene sender,GrandWildKernel kernel);
         public event OnRenderEvent OnBeforeRender;
         public event OnRenderEvent OnAfterRender;
         public event OnRenderEvent OnGetFocus;
         public event OnRenderEvent OnLoseFocus;
 
-        public void BeforeRenderBehavior() { OnBeforeRender?.Invoke(this); }
-        public void AfterRenderBehavior() { OnAfterRender?.Invoke(this); }
+        public void BeforeRenderBehavior(GrandWildKernel kernel) { OnBeforeRender?.Invoke(this, kernel); }
+        public void AfterRenderBehavior(GrandWildKernel kernel) { OnAfterRender?.Invoke(this, kernel); }
 
-        public void GetFocusBehavior() { OnGetFocus?.Invoke(this); }
-        public void LoseFocusBehavior() { OnLoseFocus?.Invoke(this); }
+        public void GetFocusBehavior(GrandWildKernel kernel) { OnGetFocus?.Invoke(this,kernel); }
+        public void LoseFocusBehavior(GrandWildKernel kernel) { OnLoseFocus?.Invoke(this,kernel); }
 
 
         public delegate void OnCreateEvent(Scene sender);

@@ -22,6 +22,7 @@ namespace org.flamerat.GrandWild.Resource {
             string lineBuffer = "";
             Queue<string> tokenBuffer = new Queue<string>();
             string currentToken = "";
+            bool faceMode = false;
 
             //Finite state machine for reading file
             while(!objFileStream.EndOfStream){
@@ -30,7 +31,14 @@ namespace org.flamerat.GrandWild.Resource {
                         readingState = ReadingState.LineEnd;
                         break;
                     default:
-                        currentToken=tokenBuffer.Dequeue();
+                        switch (faceMode) {
+                            case true:
+                                break;
+                            default:
+                                currentToken = tokenBuffer.Dequeue();
+                                break;
+                        }
+                        
                         break;
                 }
 
@@ -50,6 +58,7 @@ namespace org.flamerat.GrandWild.Resource {
                                 break;
                             case "f":
                                 readingState = ReadingState.FaceBody;
+                                faceMode = true;
                                 break;
                             default:
                                 tokenBuffer.Clear();
@@ -123,6 +132,7 @@ namespace org.flamerat.GrandWild.Resource {
                         }
                         rawFaces.Add(currentFace);
                         tokenBuffer.Clear();
+                        faceMode = false;
                         break;
                     case ReadingState.LineEnd:
                         lineBuffer = objFileStream.ReadLine();
@@ -156,14 +166,14 @@ namespace org.flamerat.GrandWild.Resource {
                                 Color = color.Value,
                                 Texture = rawTextures[(int)face.vertexes[0].Vertex - 1],
                             });
-                            UInt16 firstPoint =(UInt16) vertexList.Count;
+                            UInt16 firstPoint =(UInt16) (vertexList.Count-1);
                             vertexList.Add(new GrandWildKernel.Vertex {
                                 Position = rawVertexes[(int)face.vertexes[1].Vertex - 1],
                                 Normal = rawNormals[(int)face.vertexes[1].Normal - 1],
                                 Color = color.Value,
                                 Texture = rawTextures[(int)face.vertexes[1].Vertex - 1],
                             });
-                            UInt16 secondPoint = (UInt16)vertexList.Count;
+                            UInt16 secondPoint = (UInt16)(vertexList.Count-1);
                             for (var i = 2; i <= face.vertexes.Length - 1; i++) {
                                 vertexList.Add(new GrandWildKernel.Vertex {
                                     Position = rawVertexes[(int)face.vertexes[i].Vertex - 1],
@@ -173,7 +183,7 @@ namespace org.flamerat.GrandWild.Resource {
                                 });
                                 indexList.Add(firstPoint);
                                 indexList.Add(secondPoint);
-                                secondPoint =(UInt16) vertexList.Count;
+                                secondPoint =(UInt16) (vertexList.Count-1);
                                 indexList.Add(secondPoint);
                             }
                         }

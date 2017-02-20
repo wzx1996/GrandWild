@@ -54,7 +54,7 @@ namespace org.flamerat.GrandWild {
             bufferOffset[0] = 0;
             for (uint i = 0; i <= buffers.Length - 1; i++) {
                 bufferSize[i] = device.GetBufferMemoryRequirements(buffers[i].Buffer).Size;
-                if (i != 0) bufferOffset[i] = bufferSize[i] + bufferOffset[i - 1];
+                if (i != 0) bufferOffset[i] = bufferSize[i-1] + bufferOffset[i - 1];
                 memorySize += bufferSize[i];
             }
 
@@ -91,7 +91,7 @@ namespace org.flamerat.GrandWild {
             imageOffset[0] = 0;
             for (uint i = 0; i <= images.Length - 1; i++) {
                 imageSize[i] = device.GetImageMemoryRequirements(images[i].Image).Size;
-                if (i != 0) imageOffset[i] = imageSize[i] + imageOffset[i - 1];
+                if (i != 0) imageOffset[i] = imageSize[i-1] + imageOffset[i - 1];
                 memorySize += imageSize[i];
             }
 
