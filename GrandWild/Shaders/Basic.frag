@@ -25,5 +25,4 @@ void main(){
 	OutColorRaw=clamp(OutColorRaw,0.0,1.0);
 	float actualFogDensity=Scene.fogDensity*gl_FragCoord.z;
 	OutColor=OutColorRaw*(vec4(1.0,1.0,1.0,1.0)+Brightness*Scene.globalLightColor)*(1-actualFogDensity)+actualFogDensity*Scene.fogColor;
-
 }

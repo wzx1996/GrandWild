@@ -20,7 +20,7 @@ namespace org.flamerat.GrandWild.Rendering {
 namespace org.flamerat.GrandWild {
     public static class VulkanCommandBufferDrawIRenderableExtension {
         public static void CmdDrawRenderableGw(this CommandBuffer commandBuffer, Rendering.IRenderable target) {
-            target.Draw(commandBuffer);
+            if(target!=null) target.Draw(commandBuffer);
         }
     }
 }

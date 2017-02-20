@@ -41,12 +41,12 @@ namespace org.flamerat.GrandWild.Rendering {
             public mat4 ModelMatrix {
                 get {
                     mat4 result=new mat4(1.0F);
-                    glm.translate(result, new vec3(-Origin.x,-Origin.y,-Origin.z));
-                    glm.scale(result, Scale);
-                    glm.rotate(result, glm.radians(XRotation), xAxis);
-                    glm.rotate(result, glm.radians(YRotation), yAxis);
-                    glm.rotate(result, glm.radians(ZRotation), zAxis);
-                    glm.translate(result, Position);
+                    result=glm.translate(mat4.identity(), new vec3(-Origin.x,-Origin.y,-Origin.z))*result;
+                    result=glm.scale(mat4.identity(),Scale) * result;
+                    result=glm.rotate(glm.radians(XRotation), xAxis) * result;
+                    result=glm.rotate(glm.radians(YRotation), yAxis) * result;
+                    result=glm.rotate(glm.radians(ZRotation), zAxis) * result;
+                    result=glm.translate(mat4.identity(), Position) * result;
                     return result;
                 }
             }

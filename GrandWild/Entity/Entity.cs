@@ -22,11 +22,11 @@ namespace org.flamerat.GrandWild.Entity {
             OnMove?.Invoke(this, oldPosition, Position);
         }
         public void MoveForSelfCoordinate(float forward,float right,float up) {
-            var selfMovement = new vec4(right, up, -forward, 1);
+            var selfMovement = new vec4(right, up, -forward, 0);
             mat4 rotateMatrix = new mat4(1);
-            glm.rotate(rotateMatrix, glm.radians(XRotation), new vec3(1, 0, 0));
-            glm.rotate(rotateMatrix, glm.radians(YRotation), new vec3(0, 1, 0));
-            glm.rotate(rotateMatrix, glm.radians(ZRotation), new vec3(0, 0, 1));
+            rotateMatrix=glm.rotate(glm.radians(XRotation), new vec3(1, 0, 0))*rotateMatrix;
+            rotateMatrix=glm.rotate(glm.radians(YRotation), new vec3(0, 1, 0)) * rotateMatrix;
+            rotateMatrix=glm.rotate(glm.radians(ZRotation), new vec3(0, 0, 1)) * rotateMatrix;
             selfMovement = rotateMatrix * selfMovement;
             MoveFor(new vec3(selfMovement));
         }
@@ -92,18 +92,22 @@ namespace org.flamerat.GrandWild.Entity {
         }
 
         public vec3 Position { get; private set; }
-        public float Scale { get; private set; }
+        public float Scale {
+            get { return _Scale; }
+            set { if (value > 0) _Scale = value; }
+        }
+        private float _Scale = 1.0F;
         public float XRotation { get; private set; }
         public float YRotation { get; private set; }
         public float ZRotation { get; private set; }
         private mat4 _ModelMatrix {
             get {
                 mat4 result=new mat4(1);
-                glm.scale(result, new vec3(Scale));
-                glm.rotate(result, glm.radians(XRotation), new vec3(1, 0, 0));
-                glm.rotate(result, glm.radians(YRotation), new vec3(0, 1, 0));
-                glm.rotate(result, glm.radians(ZRotation), new vec3(0, 0, 1));
-                glm.translate(result, Position);
+                result=glm.scale(mat4.identity(), new vec3(_Scale))*result;
+                result=glm.rotate(glm.radians(XRotation), new vec3(1, 0, 0))*result;
+                result=glm.rotate(glm.radians(YRotation), new vec3(0, 1, 0))*result;
+                result=glm.rotate(glm.radians(ZRotation), new vec3(0, 0, 1))*result;
+                result=glm.translate(mat4.identity(), Position)*result;
                 return result;
             }
         }
