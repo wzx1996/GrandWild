@@ -344,6 +344,7 @@ namespace org.flamerat.GrandWild
 
 #if ENABLE_RENDERDOC
             {
+                Environment.SetEnvironmentVariable("ENABLE_VULKAN_RENDERDOC_CAPTURE", "1");
                 layers.Add("VK_LAYER_RENDERDOC_Capture");
             }
 #endif
@@ -930,8 +931,8 @@ namespace org.flamerat.GrandWild
                 pViewport: new Vulkan.Viewport {
                     Width = _WindowWidth,
                     Height = _WindowHeight,
-                    MinDepth = float.MinValue,
-                    MaxDepth = float.MaxValue,
+                    MinDepth = 0.0F,
+                    MaxDepth = 1.0F,
                     X = 0,
                     Y = 0
                 }
