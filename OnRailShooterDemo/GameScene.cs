@@ -85,13 +85,13 @@ namespace org.flamerat.OnRailShooterDemo {
         public GameScene() {
             AddEntity(Player);
             OnGetFocus += _GotFocus;
-            MoveTo(new GlmNet.vec3(0, 1, -3));
+            MoveTo(new GlmNet.vec3(0, 1, 3));
             RotateTo(0, 0, 0);
             SwitchAspectRatioMode(ScreenInfo.AspectRatioMode.FixedHeight);
             SetCameraProperty(
-                nearPlane: 0.5F,
-                farPlane: 2000F,
-                fieldOfView: 75,
+                nearPlane: 2.0F,
+                farPlane: 100F,
+                fieldOfView: 60,
                 orthoMode: false
             );
             Info = new SceneInfo {
